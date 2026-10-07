@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Quiz: Rock Paper Scissors & Conditionals (20 Questions)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Inter', sans-serif;
+        }
+
+        code, pre {
+            font-family: 'Fira Code', monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.92em;
+            color: #0284c7;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
+            color: white;
+            padding: 26px 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #e0f2fe;
+            direction: ltr;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-val.high {
+            color: var(--accent);
+        }
+
+        /* Index Button */
+        .btn-index {
+            background: #f0f9ff;
+            color: var(--primary);
+            border: 2px solid #bae6fd;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-index:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        /* Question Box */
+        .q-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 10px 20px -3px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .q-badge {
+            background: #f0f9ff;
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .q-text-ar {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .q-text-en {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #475569;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: #f0f9ff;
+            border-color: #7dd3fc;
+            transform: translateX(-4px);
+        }
+
+        .opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--success) !important;
+        }
+
+        .opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+        }
+
+        .opt-ar {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .opt-en {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #64748b;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .opt-btn.correct .opt-ar, .opt-btn.correct .opt-en {
+            color: #15803d !important;
+        }
+
+        .opt-btn.wrong .opt-ar, .opt-btn.wrong .opt-en {
+            color: #991b1b !important;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            display: none;
+            background: #f1f5f9;
+            border-right: 5px solid var(--primary);
+        }
+
+        .exp-en {
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            color: #334155;
+            margin-top: 6px;
+            font-size: 0.92rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .btn-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-nav:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Modal Index */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 26px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            animation: popIn 0.25s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .close-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        .grid-index {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .index-pill {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 10px 4px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #334155;
+        }
+
+        .index-pill:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .index-pill.active {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+            font-weight: 900;
+        }
+
+        .index-pill.solved-correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+        }
+
+        .index-pill.solved-wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        /* Results Card */
+        .results-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .trophy {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #f0f9ff;
+            border: 6px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        .score-num {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .btn-restart {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.2s;
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>اختبار لغة بايثون: لعبة حجرة ورقة مقص والشروط (20 سؤالاً)</h1>
+        <p>Bilingual Quiz: Python Conditionals, Multi-line Strings, Lists & Random Choice</p>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">رقم السؤال / Question</span>
+            <div><span class="stat-val" id="qCurrent">1</span> / 20</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أول محاولة / 1st Score 🎯</span>
+            <span class="stat-val" style="color: #0284c7;" id="firstScore">--</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">الدرجة الحالية / Score</span>
+            <span class="stat-val" id="score">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أعلى نتيجة / High Score 🏆</span>
+            <span class="stat-val high" id="highScore">0</span>
+        </div>
+        <div>
+            <button class="btn-index" onclick="openIndexModal()">
+                <span>📑</span>
+                <span>فهرس الأسئلة (1-20)</span>
+            </button>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <!-- Question Box -->
+    <div class="q-card" id="quizCard">
+        <div class="q-header">
+            <span class="q-badge" id="topicBadge">Python Concept</span>
+            <span style="color: var(--text-muted); font-size: 0.9rem;" id="qStatusIndicator">لم يُجب بعد / Not answered</span>
+        </div>
+        
+        <div class="q-text-ar" id="questionTextAr">جاري تحميل السؤال...</div>
+        <div class="q-text-en" id="questionTextEn">Loading question...</div>
+        
+        <div class="options-list" id="optionsContainer"></div>
+        
+        <div class="explanation" id="explanationText"></div>
+
+        <div class="actions">
+            <button class="btn-nav" id="prevBtn" onclick="prevQuestion()" disabled>➡️ السابق / Prev</button>
+            <button class="btn-nav" id="nextBtn" onclick="nextQuestion()">التالي / Next ⬅️</button>
+        </div>
+    </div>
+
+    <!-- Results Box -->
+    <div class="results-card" id="resultsCard">
+        <div class="trophy" id="trophyIcon">🎉</div>
+        <h2 id="resultMsg" style="font-size: 1.8rem; margin-bottom: 8px;">أحسنت صنعاً!</h2>
+        <p id="resultSubtitle" style="color: var(--text-muted);">You completed all 20 Python questions!</p>
+        
+        <div class="score-circle">
+            <div class="score-num" id="finalScore">0</div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">/ 20</span>
+        </div>
+
+        <p id="highScoreNotice" style="font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 10px;"></p>
+
+        <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار من البداية 🔄</button>
+    </div>
+</div>
+
+<!-- Modal Index Window -->
+<div class="modal-overlay" id="indexModal" onclick="closeIndexModalOnOutside(event)">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📑 فهرس أسئلة بايثون (Question Index)</h3>
+            <button class="close-btn" onclick="closeIndexModal()">✕</button>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div><span>إجابة صحيحة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div><span>إجابة خاطئة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #0284c7;"></div><span>السؤال الحالي</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></div><span>لم يُحل بعد</span></div>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">انقر على أي رقم سؤال للانتقال إليه مباشرة:</p>
+        
+        <div class="grid-index" id="gridIndexContainer"></div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            topic: "Python - Module Import",
+            ar_q: "ما الغرض من كتابة السطر الأول: from random import choice؟",
+            en_q: "What is the purpose of the first line: from random import choice?",
+            options: [
+                { ar: "استيراد دالة choice فقط من مكتبة random مباشرة دون الحاجة لكتابة اسم المكتبة لاحقاً", en: "Imports only the choice function directly from random without needing to prefix it" },
+                { ar: "حذف مكتبة random بالكامل من ملف البرنامج", en: "Deletes the random module entirely from the program" },
+                { ar: "توليد رقم عشوائي بين 0 و 100 فورياً", en: "Immediately generates a random number between 0 and 100" },
+                { ar: "استدعاء جميع دوال بايثون الرياضية", en: "Imports all mathematical functions in Python" }
+            ],
+            correct: 0,
+            exp_ar: "تتيح صيغة 'from module import function' استدعاء دالة محددة مباشرة واستخدامها باسمها المجرد مثل choice(game).",
+            exp_en: "Using 'from random import choice' brings the choice function into namespace so you can call choice() directly."
+        },
+        {
+            topic: "Python - Triple Quotes Strings",
+            ar_q: "لماذا تم استخدام علامات التنصيص الثلاثية \"\"\" في تعريف المتغيرات rock و paper و scissors؟",
+            en_q: "Why are triple quotes (\"\"\") used when defining rock, paper, and scissors?",
+            options: [
+                { ar: "لأن بايثون تمنع استخدام النصوص العادية في الرسومات", en: "Because Python disallows regular strings for art" },
+                { ar: "للسماح بكتابة نصوص متعددة الأسطر (Multi-line strings) والحفاظ على التنسيق والمسافات", en: "To allow multi-line strings while preserving line breaks and whitespace" },
+                { ar: "لتحويل النص إلى قائمة أرقام تلقائياً", en: "To automatically convert the string into a list of numbers" },
+                { ar: "لتشفير المتغيرات وحمايتها من التعديل", en: "To encrypt the variables and protect them from modification" }
+            ],
+            correct: 1,
+            exp_ar: "علامات التنصيص الثلاثية \"\"\" أو ''' تُستخدم في بايثون لإنشاء سلاسل نصية متعددة الأسطر مع الاحتفاظ بالفواصل والمسافات.",
+            exp_en: "Triple quotes allow strings to span multiple lines while preserving formatting and line breaks."
+        },
+        {
+            topic: "Python - Data Types",
+            ar_q: "ما هو نوع البيانات (Data Type) للمتغير rock في الكود؟",
+            en_q: "What is the data type of the variable rock in this code?",
+            options: [
+                { ar: "List (قائمة)", en: "List" },
+                { ar: "Integer (رقم صحيح)", en: "Integer" },
+                { ar: "String (سلسلة نصية str)", en: "String (str)" },
+                { ar: "Dictionary (قاموس)", en: "Dictionary" }
+            ],
+            correct: 2,
+            exp_ar: "المتغير rock يحتوي على رسمة ASCII محاطة بعلامات تنصيص ثلاثية، لذا فهو من نوع str (String).",
+            exp_en: "rock is enclosed in triple quotes, making it a string (str) data type."
+        },
+        {
+            topic: "Python - input Function",
+            ar_q: "ما نوع القيمة التي ترجعها دالة p = input('> ') دائماً؟",
+            en_q: "What data type does p = input('> ') always return?",
+            options: [
+                { ar: "Integer (int)", en: "Integer (int)" },
+                { ar: "String (str)", en: "String (str)" },
+                { ar: "Boolean (bool)", en: "Boolean (bool)" },
+                { ar: "Float (float)", en: "Float (float)" }
+            ],
+            correct: 1,
+            exp_ar: "دالة input() في بايثون ترجع دائماً مدخلات المستخدم كنص (String) حتى لو قام بإدخال رقم.",
+            exp_en: "The input() function always reads and returns user input as a string."
+        },
+        {
+            topic: "Python - input Prompt",
+            ar_q: "ما فائدة النص '> ' داخل دالة input('> ')؟",
+            en_q: "What is the purpose of '> ' inside input('> ')?",
+            options: [
+                { ar: "حساب عملية المقارنة الأكبر من", en: "Evaluating a greater-than comparison" },
+                { ar: "إظهار رمز محفز مرئي (Prompt) للمستخدم يوضح مكان كتابة إجابته", en: "Displaying a visual prompt indicating where the user should type" },
+                { ar: "إجبار المستخدم على إدخال أرقام موجبة فقط", en: "Forcing the user to only enter positive numbers" },
+                { ar: "إيقاف عمل المترجم مؤقتاً", en: "Pausing the interpreter indefinitely" }
+            ],
+            correct: 1,
+            exp_ar: "المعامل الممرر لـ input هو رسالة محفزة (Prompt) تظهر على الشاشة لإرشاد المستخدم للمكان المخصص للإدخال.",
+            exp_en: "The argument inside input() is printed as a prompt to signal where the user should type."
+        },
+        {
+            topic: "Python - Variable Initialization",
+            ar_q: "ما الهدف من كتابة السطر player = '' قبل فحص الشروط؟",
+            en_q: "Why is player = '' written before the conditional checks?",
+            options: [
+                { ar: "لإلغاء تثبيت بايثون", en: "To uninstall Python" },
+                { ar: "لتهيئة المتغير بسلسلة فارغة تجنباً لحدوث خطأ NameError إذا لم يتحقق أي شرط", en: "To initialize the variable with an empty string, avoiding NameError if no condition matches" },
+                { ar: "لتحويل اللعبة إلى وضع القراءة فقط", en: "To put the game into read-only mode" },
+                { ar: "لحذف المتغير من الذاكرة", en: "To wipe the variable from RAM" }
+            ],
+            correct: 1,
+            exp_ar: "تهيئة المتغير بسلسلة نصية فارغة تضمن وجود المتغير في الذاكرة قبل محاولة طباعته لاحقاً.",
+            exp_en: "Initializing player ensures the variable exists before print(player) is reached, preventing NameError."
+        },
+        {
+            topic: "Python - Comparison Operator",
+            ar_q: "في جملة if p == 'r':، ماذا يمثل المعامل ==؟",
+            en_q: "In if p == 'r':, what does the == operator do?",
+            options: [
+                { ar: "إسناد وتعيين الحرف 'r' في المتغير p", en: "Assigning 'r' into variable p" },
+                { ar: "التحقق من التساوي والمقارنة المنطقية بين قيمة p والحرف 'r'", en: "Checking equality between the value of p and 'r'" },
+                { ar: "دمج المتغير p مع الحرف 'r'", en: "Concatenating p with 'r'" },
+                { ar: "حذف المتغير إذا ساوى الحرف 'r'", en: "Deleting the variable if equal to 'r'" }
+            ],
+            correct: 1,
+            exp_ar: "المعامل == مخصص لاختبار المساواة، بينما المعامل = المفرد مخصص للإسناد والتخزين.",
+            exp_en: "== tests equality between two expressions, whereas = is used for assignment."
+        },
+        {
+            topic: "Python - Conditional Execution",
+            ar_q: "إذا أدخل المستخدم الحرف 'p' في دالة الإدخال، فما قيمة player الناتجة؟",
+            en_q: "If the user inputs 'p', what will be the resulting value assigned to player?",
+            options: [
+                { ar: "قيمة المتغير scissors", en: "The value of scissors" },
+                { ar: "قيمة المتغير rock", en: "The value of rock" },
+                { ar: "قيمة المتغير paper", en: "The value of paper" },
+                { ar: "سلسلة نصية فارغة ''", en: "An empty string ''" }
+            ],
+            correct: 2,
+            exp_ar: "الشرط الثاني يتحقق: elif p == 'p': مما يجعل المتغير player يأخذ قيمة المتغير paper.",
+            exp_en: "The elif p == 'p' branch evaluates to True, assigning the paper ASCII art to player."
+        },
+        {
+            topic: "Python - Missing else Branch",
+            ar_q: "ماذا سيطبع البرنامج إذا كتب المستخدم الحرف 'x' كمدخل؟",
+            en_q: "What will print(player) output if the user enters 'x'?",
+            options: [
+                { ar: "سيظهر خطأ SyntaxError ويتوقف الكود", en: "A SyntaxError will crash the code" },
+                { ar: "سطر فارغ (لأن قيمة player ظلت '')", en: "An empty line (because player remained '')" },
+                { ar: "سيختار صخرة تلقائياً", en: "It automatically chooses rock" },
+                { ar: "سيُطبع الحرف 'x'", en: "It will print 'x'" }
+            ],
+            correct: 1,
+            exp_ar: "لن يتحقق أي من شروط 'r' أو 'p' أو 's' ولا توجد جملة else، فتبقى قيمة player هي السلسلة الفارغة '' فيُطبع سطر فارغ.",
+            exp_en: "No condition matches and there is no else fallback, so player stays '' resulting in an empty print."
+        },
+        {
+            topic: "Python - Lists",
+            ar_q: "في السطر game = [rock, paper, scissors]، ما نوع الهيكل المستخدم؟",
+            en_q: "In game = [rock, paper, scissors], what data structure is game?",
+            options: [
+                { ar: "Set (مجموعة)", en: "Set" },
+                { ar: "Tuple (صف ثابت)", en: "Tuple" },
+                { ar: "Dictionary (قاموس)", en: "Dictionary" },
+                { ar: "List (قائمة)", en: "List" }
+            ],
+            correct: 3,
+            exp_ar: "الأقواس المربعة [ ] تُعرّف قائمة (List) تحتوي في هذا الكود على 3 عناصر مرجعية.",
+            exp_en: "Square brackets [ ] define a mutable List in Python."
+        },
+        {
+            topic: "Python - List Elements",
+            ar_q: "كم عدد العناصر الموجودة داخل القائمة game؟",
+            en_q: "How many items are inside the game list?",
+            options: [
+                { ar: "عنصر واحد", en: "1 item" },
+                { ar: "3 عناصر", en: "3 items" },
+                { ar: "لا نهائي", en: "Infinite" },
+                { ar: "6 عناصر", en: "6 items" }
+            ],
+            correct: 1,
+            exp_ar: "تحتوي القائمة على 3 متغيرات مفصولة بفواصل: rock, paper, scissors.",
+            exp_en: "The list contains 3 elements: rock, paper, and scissors."
+        },
+        {
+            topic: "Python - choice Function",
+            ar_q: "ما وظيفة الدالة choice(game) المستوردة من مكتبة random؟",
+            en_q: "What does the choice(game) function from the random module do?",
+            options: [
+                { ar: "توليد خيار عشوائي من عناصر القائمة game الممررة لها", en: "Returns a randomly chosen element from the game list" },
+                { ar: "ترتيب عناصر القائمة أبجدياً", en: "Sorts the list alphabetically" },
+                { ar: "حذف عنصر عشوائي من القائمة", en: "Deletes a random element from the list" },
+                { ar: "حساب طول القائمة", en: "Calculates the length of the list" }
+            ],
+            correct: 0,
+            exp_ar: "دالة choice() تستقبل متسلسلة غير فارغة وترجع عنصراً عشوائياً منها في كل مرة تُستدعى فيها.",
+            exp_en: "random.choice() takes a non-empty sequence and returns a random element from it."
+        },
+        {
+            topic: "Python - Computer Choices",
+            ar_q: "ما هي القيم المحتملة التي يمكن أن يحتويها المتغير computer؟",
+            en_q: "What are the possible values that the computer variable can hold?",
+            options: [
+                { ar: "أرقام فقط بين 1 و 3", en: "Only numbers between 1 and 3" },
+                { ar: "إما النص rock أو paper أو scissors", en: "Either the rock, paper, or scissors string" },
+                { ar: "الحروف 'r' و 'p' و 's' فقط", en: "Only the characters 'r', 'p', and 's'" },
+                { ar: "قيمة منطقية True أو False", en: "A boolean True or False" }
+            ],
+            correct: 1,
+            exp_ar: "القائمة game تحتوي على نصوص المتغيرات rock و paper و scissors، لذا ستختار choice واحداً منها.",
+            exp_en: "Since game holds the string variables [rock, paper, scissors], computer will be one of these three strings."
+        },
+        {
+            topic: "Python - Case Sensitivity",
+            ar_q: "لو أدخل المستخدم الحرف 'R' كبير (Capital)، ماذا سيحدث في الكود الحالي؟",
+            en_q: "If the user inputs uppercase 'R', what will happen in the current code?",
+            options: [
+                { ar: "سيعتبرها مثل 'r' تماماً ويطبع rock", en: "It treats it as 'r' and prints rock" },
+                { ar: "لن يتحقق الشرط p == 'r' لأن بايثون حساسة لحالة الأحرف (Case-sensitive)", en: "The condition p == 'r' fails because Python is case-sensitive" },
+                { ar: "سيقوم بايثون بتصحيحها تلقائياً", en: "Python automatically autocorrects it" },
+                { ar: "سيظهر خطأ KeyError", en: "A KeyError is thrown" }
+            ],
+            correct: 1,
+            exp_ar: "بايثون لغة حساسة لحالة الأحرف، لذا المقارنة 'R' == 'r' نتيجتها False ولن يتحقق الشرط.",
+            exp_en: "Python is case-sensitive; 'R' == 'r' evaluates to False."
+        },
+        {
+            topic: "Python - Improving User Input",
+            ar_q: "كيف يمكن تعديل السطر p = input('> ') ليقبل الحروف الكبيرة والصغيرة معاً؟",
+            en_q: "How can p = input('> ') be modified to accept both uppercase and lowercase inputs?",
+            options: [
+                { ar: "p = input('> ').lower()", en: "p = input('> ').lower()" },
+                { ar: "p = int(input('> '))", en: "p = int(input('> '))" },
+                { ar: "p = input('> ').reverse()", en: "p = input('> ').reverse()" },
+                { ar: "p = input('> ').sort()", en: "p = input('> ').sort()" }
+            ],
+            correct: 0,
+            exp_ar: "الدالة .lower() تقوم بتحويل أي مدخل إلى أحرف صغيرة، مما يجعل المقارنة ناجحة سواء كتب المستخدم R أو r.",
+            exp_en: ".lower() normalizes input to lowercase so both 'R' and 'r' match 'r'."
+        },
+        {
+            topic: "Python - Alternative Import",
+            ar_q: "إذا قمنا بكتابة import random بدلاً من from random import choice، فكيف يُكتب ستعاء الاختيار؟",
+            en_q: "If we used 'import random' instead of 'from random import choice', how would choice be invoked?",
+            options: [
+                { ar: "computer = random.choice(game)", en: "computer = random.choice(game)" },
+                { ar: "computer = random->choice(game)", en: "computer = random->choice(game)" },
+                { ar: "computer = choice.random(game)", en: "computer = choice.random(game)" },
+                { ar: "computer = game.random()", en: "computer = game.random()" }
+            ],
+            correct: 0,
+            exp_ar: "عند استيراد المكتبة بأكملها، يجب استخدام اسم المكتبة متبوعاً بنقطة قبل اسم الدالة: random.choice().",
+            exp_en: "Importing the whole module requires accessing functions via module.function (random.choice)."
+        },
+        {
+            topic: "Python - Code Flow",
+            ar_q: "ما هو الترتيب المنطقي للعمليات التي ينفذها هذا الكود؟",
+            en_q: "What is the execution order of operations in this code snippet?",
+            options: [
+                { ar: "اختيار الكمبيوتر أولاً ثم سؤال اللاعب", en: "Computer chooses first, then player is prompted" },
+                { ar: "عرض رسائل الترحيب -> أخذ مدخل اللاعب -> تحديد رسمة اللاعب -> اختيار الكمبيوتر عشوائياً -> طباعة اختيار الكمبيوتر", en: "Welcome message -> Get user input -> Set player art -> Random computer choice -> Print computer art" },
+                { ar: "طباعة النتيجة وتحديد الفائز فوراً", en: "Instantly determining and printing the winner" },
+                { ar: "تكرار اللعبة في حلقة لانهائية", en: "Looping the game infinitely" }
+            ],
+            correct: 1,
+            exp_ar: "يسير الكود خطياً من أعلى لأسفل: يطبع الترحيب، يستقبل المدخل، يفحص الشرط لتعيين شكل اللاعب، يختار الكمبيوتر، ويطبع شكل الكمبيوتر.",
+            exp_en: "Execution flows sequentially: prompts are displayed, player input is checked, computer draws an option, and results are printed."
+        },
+        {
+            topic: "Python - Logic Expansion",
+            ar_q: "ما الذي ينقص الكود البرمجي الحالي ليكتمل كـ لعبة تفاعلية حقيقية؟",
+            en_q: "What logic is missing from this code snippet to make it a complete playable game?",
+            options: [
+                { ar: "إضافة دالة print() للترحيب", en: "Adding a print() greeting" },
+                { ar: "إضافة مقارنات منطقية لتحديد الفائز والخاسر والتعادل (Win / Lose / Draw conditions)", en: "Adding comparison conditions to determine Win, Lose, or Tie" },
+                { ar: "تعريف المتغيرات rock و paper", en: "Defining rock and paper variables" },
+                { ar: "تثبيت مكتبة خارجية بأمر pip", en: "Installing third-party packages via pip" }
+            ],
+            correct: 1,
+            exp_ar: "الكود يعرض فقط اختيار اللاعب واختيار الكمبيوتر، لكنه لا يحتوي بعد على شروط مقارنة لتحديد الفائز (مثل rock يهزم scissors).",
+            exp_en: "The snippet prints both choices but does not evaluate who won or if it's a draw."
+        },
+        {
+            topic: "Python - Indentation",
+            ar_q: "ما هي أهمية المسافات البادئة (Indentation) تحت أسطر if و elif؟",
+            en_q: "What is the importance of indentation under if and elif statements in Python?",
+            options: [
+                { ar: "مجرد شكل جمالي اختياري ولا يؤثر على الكود", en: "Purely aesthetic and optional" },
+                { ar: "إجبارية لتحديد جسم وكتلة الكود التابعة للشرط (Indentation block)", en: "Mandatory to define the block of code belonging to the condition" },
+                { ar: "تُستخدم فقط لتسريع تنفيذ الكود", en: "Used solely to optimize execution speed" },
+                { ar: "تُستخدم لمنع طباعة النصوص", en: "Used to prevent string printing" }
+            ],
+            correct: 1,
+            exp_ar: "المسافة البادئة في بايثون ليست اختيارية؛ إنها الطريقة التي تحدد بها لغة بايثون كتل التعليمات البرمجية التابعة للشروط والدوال.",
+            exp_en: "Indentation in Python is syntactically mandatory to define code blocks."
+        },
+        {
+            topic: "Python - Random on Empty List",
+            ar_q: "إذا كانت القائمة game فارغة تماماً: game = []، فماذا سينتج عن استدعاء choice(game)؟",
+            en_q: "If the game list is empty: game = [], what error occurs when calling choice(game)?",
+            options: [
+                { ar: "ترجع القيمة None", en: "It returns None" },
+                { ar: "ترجع نصاً فارغاً ''", en: "It returns an empty string ''" },
+                { ar: "IndexError: cannot choose from an empty sequence", en: "IndexError: cannot choose from an empty sequence" },
+                { ar: "TypeError: invalid list type", en: "TypeError: invalid list type" }
+            ],
+            correct: 2,
+            exp_ar: "دالة random.choice() تطلق خطأ IndexError إذا تم تمرير متسلسلة فارغة لها لعدم وجود أي عنصر للاختيار منه.",
+            exp_en: "choice() raises an IndexError when called on an empty sequence."
+        }
+    ];
+
+    let userAnswers = new Array(questions.length).fill(null);
+    let currentIdx = 0;
+    let score = 0;
+
+    function loadScores() {
+        const storedHigh = localStorage.getItem('py_rps_highscore');
+        const high = storedHigh ? parseInt(storedHigh) : 0;
+        document.getElementById('highScore').innerText = high;
+
+        const storedFirst = localStorage.getItem('py_rps_first_score');
+        if (storedFirst !== null) {
+            document.getElementById('firstScore').innerText = storedFirst;
+        } else {
+            document.getElementById('firstScore').innerText = "--";
+        }
+        return { high, first: storedFirst };
+    }
+
+    function saveScores(finalScore) {
+        let isFirstTime = false;
+        if (localStorage.getItem('py_rps_first_score') === null) {
+            localStorage.setItem('py_rps_first_score', finalScore);
+            document.getElementById('firstScore').innerText = finalScore;
+            isFirstTime = true;
+        }
+
+        const currentHigh = parseInt(localStorage.getItem('py_rps_highscore') || '0');
+        let isNewHigh = false;
+        if (finalScore > currentHigh) {
+            localStorage.setItem('py_rps_highscore', finalScore);
+            document.getElementById('highScore').innerText = finalScore;
+            isNewHigh = true;
+        }
+
+        return { isFirstTime, isNewHigh };
+    }
+
+    function calculateScore() {
+        let s = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correct) {
+                s++;
+            }
+        }
+        score = s;
+        document.getElementById('score').innerText = score;
+        return score;
+    }
+
+    function displayQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('qCurrent').innerText = currentIdx + 1;
+        document.getElementById('topicBadge').innerText = q.topic;
+        document.getElementById('questionTextAr').innerText = (currentIdx + 1) + ". " + q.ar_q;
+        document.getElementById('questionTextEn').innerText = "Q" + (currentIdx + 1) + ": " + q.en_q;
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        const pct = (answeredCount / questions.length) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        const expBox = document.getElementById('explanationText');
+        const statusIndicator = document.getElementById('qStatusIndicator');
+
+        const prevAns = userAnswers[currentIdx];
+
+        if (prevAns === null) {
+            statusIndicator.innerText = "لم يُجب بعد / Not answered";
+            statusIndicator.style.color = "var(--text-muted)";
+            expBox.style.display = 'none';
+        } else {
+            statusIndicator.innerText = prevAns === q.correct ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+            statusIndicator.style.color = prevAns === q.correct ? "var(--success)" : "var(--danger)";
+            showExplanation(prevAns === q.correct, prevAns);
+        }
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerHTML = `
+                <div class="opt-ar">${['أ', 'ب', 'ج', 'د'][idx]}) ${opt.ar}</div>
+                <div class="opt-en">${['A', 'B', 'C', 'D'][idx]}) ${opt.en}</div>
+            `;
+
+            if (prevAns !== null) {
+                btn.disabled = true;
+                if (idx === q.correct) {
+                    btn.classList.add('correct');
+                } else if (idx === prevAns) {
+                    btn.classList.add('wrong');
+                }
+            } else {
+                btn.onclick = () => selectAnswer(idx);
+            }
+            container.appendChild(btn);
+        });
+
+        document.getElementById('prevBtn').disabled = (currentIdx === 0);
+        document.getElementById('nextBtn').innerText = (currentIdx === questions.length - 1) ? "إنهاء الاختبار / Finish 🏁" : "التالي / Next ⬅️";
+    }
+
+    function selectAnswer(chosenIdx) {
+        if (userAnswers[currentIdx] !== null) return;
+
+        userAnswers[currentIdx] = chosenIdx;
+        calculateScore();
+
+        const q = questions[currentIdx];
+        const isCorrect = (chosenIdx === q.correct);
+
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            buttons[chosenIdx].classList.add('correct');
+        } else {
+            buttons[chosenIdx].classList.add('wrong');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        showExplanation(isCorrect, chosenIdx);
+
+        const statusIndicator = document.getElementById('qStatusIndicator');
+        statusIndicator.innerText = isCorrect ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+        statusIndicator.style.color = isCorrect ? "var(--success)" : "var(--danger)";
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        document.getElementById('progressBar').style.width = ((answeredCount / questions.length) * 100) + '%';
+    }
+
+    function showExplanation(isCorrect, chosenIdx) {
+        const q = questions[currentIdx];
+        const expBox = document.getElementById('explanationText');
+
+        if (isCorrect) {
+            expBox.innerHTML = `
+                <b>✅ إجابة صحيحة / Correct!</b><br>
+                <div>${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--success)';
+        } else {
+            expBox.innerHTML = `
+                <b>❌ إجابة غير دقيقة / Incorrect!</b><br>
+                <div>الإجابة الصحيحة هي: <b>${q.options[q.correct].ar}</b></div>
+                <div class="exp-en">Correct choice: <b>${q.options[q.correct].en}</b></div>
+                <div style="margin-top: 6px;">${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--danger)';
+        }
+        expBox.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+            currentIdx++;
+            displayQuestion();
+        } else {
+            showFinalResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            displayQuestion();
+        }
+    }
+
+    function openIndexModal() {
+        buildIndexGrid();
+        document.getElementById('indexModal').style.display = 'flex';
+    }
+
+    function closeIndexModal() {
+        document.getElementById('indexModal').style.display = 'none';
+    }
+
+    function closeIndexModalOnOutside(e) {
+        if (e.target.id === 'indexModal') {
+            closeIndexModal();
+        }
+    }
+
+    function buildIndexGrid() {
+        const grid = document.getElementById('gridIndexContainer');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < questions.length; i++) {
+            const pill = document.createElement('div');
+            pill.className = 'index-pill';
+            pill.innerText = (i + 1);
+
+            if (i === currentIdx) {
+                pill.classList.add('active');
+            }
+
+            if (userAnswers[i] !== null) {
+                if (userAnswers[i] === questions[i].correct) {
+                    pill.classList.add('solved-correct');
+                } else {
+                    pill.classList.add('solved-wrong');
+                }
+            }
+
+            pill.onclick = () => {
+                currentIdx = i;
+                displayQuestion();
+                closeIndexModal();
+            };
+
+            grid.appendChild(pill);
+        }
+    }
+
+    function showFinalResults() {
+        document.getElementById('quizCard').style.display = 'none';
+        document.getElementById('progressBar').style.width = '100%';
+
+        const resultsCard = document.getElementById('resultsCard');
+        resultsCard.style.display = 'block';
+
+        calculateScore();
+        document.getElementById('finalScore').innerText = score;
+        const res = saveScores(score);
+        const scores = loadScores();
+
+        const notice = document.getElementById('highScoreNotice');
+        const msg = document.getElementById('resultMsg');
+        const icon = document.getElementById('trophyIcon');
+
+        let textDetails = `🎯 أول محاولة مسجلة (First Attempt): ${scores.first} من 20<br>`;
+        if (res.isNewHigh && score > 0) {
+            textDetails += `🏆 مبروك! حققت رقماً قياسياً جديداً (New High Score): ${score} من 20!`;
+        } else {
+            textDetails += `🏆 أعلى نتيجة على هذا الجهاز (Best Score): ${scores.high} من 20`;
+        }
+        notice.innerHTML = textDetails;
+
+        if (score >= 18) {
+            msg.innerText = "ممتاز وفوق العادة! متقن تماماً لأساسيات بايثون ولعبة حجرة ورقة مقص 🌟";
+            icon.innerText = "👑";
+        } else if (score >= 14) {
+            msg.innerText = "جيد جداً! استيعاب ممتاز للشروط والقوائم ودوال العشوائية 👏";
+            icon.innerText = "🎉";
+        } else if (score >= 10) {
+            msg.innerText = "مستوى متوسط! راجع حساسية الأحرف واستخدام دالة choice 📖";
+            icon.innerText = "👍";
+        } else {
+            msg.innerText = "يُنصح بإعادة قراءة الكود وتجربته عملياً في بيئة العمل 💡";
+            icon.innerText = "💡";
+        }
+    }
+
+    function restartQuiz() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('resultsCard').style.display = 'none';
+        document.getElementById('quizCard').style.display = 'block';
+        displayQuestion();
+    }
+
+    window.onload = function() {
+        loadScores();
+        displayQuestion();
+    };
+</script>
+</body>
+</html>
+```eof
+
+### مميزات الاختبار التفاعلي الجديد:
+1. **نفس التصميم والواجهة المتطورة:** تم الحفاظ تماماً على نفس شكل القالب الخاص باختبار JavaScript (ثنائي اللغة، شريط التقدم، فهرس الأسئلة السريع 1–20، حفظ أعلى نتيجة وأول نتيجة عبر `localStorage`).
+2. **20 سؤالاً متخصصاً وشاملاً لكود بايثون:**
+   - النصوص متعددة الأسطر وعلامات التنصيص الثلاثية (`"""`).
+   - استيراد الدوال ودالة `choice()` من مكتبة `random`.
+   - دالة `input()` وطبيعة القيم النصية التي تعيدها.
+   - جمل الشروط المتسلسلة `if - elif` ومعاملات المقارنة (`==`).
+   - القوائم (`Lists`) والوصول إلى عناصرها.
+   - حساسية بايثون لحالة الأحرف (Case Sensitivity) وكيفية التعامل معها بـ `.lower()`.
+   - كتل المسافات البادئة (Indentation) ومعالجة الحالات الاستثنائية كالقوائم الفارغة.
+3. **تفسيرات فورية ثنائية اللغة:** شرح فوري بالعربية والإنجليزية لكل سؤال يوضح سبب صحة الإجابة.
