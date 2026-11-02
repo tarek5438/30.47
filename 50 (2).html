@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الاختبار الشامل في أساسيات لغة بايثون (50 سؤال ثنائي اللغة)</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #0f172a;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Inter', sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+        .en-text {
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+            text-align: left;
+        }
+        .code-font {
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+        .opt-card {
+            transition: all 0.2s ease;
+        }
+        .opt-card:hover:not(:disabled) {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+        .opt-card.selected-choice {
+            border-color: #1e3a8a;
+            background-color: #dbeafe;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.18);
+        }
+        .opt-card.locked-correct {
+            border-color: #16a34a !important;
+            background-color: #dcfce7 !important;
+        }
+        .opt-card.locked-wrong {
+            border-color: #dc2626 !important;
+            background-color: #fee2e2 !important;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade {
+            animation: fadeIn 0.25s ease forwards;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="bg-gradient-to-br from-blue-900 via-slate-900 to-indigo-950 text-white rounded-2xl p-5 sm:p-7 shadow-xl mb-5 border-b-4 border-amber-500">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <span class="bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold px-3.5 py-1 rounded-full">
+                    🐍 تقييم شامل ومنظم: أساسيات البرمجة بلغة بايثون (Python)
+                </span>
+                <span class="bg-blue-500/20 border border-blue-400/40 text-blue-200 text-xs sm:text-sm font-bold px-3.5 py-1 rounded-full">
+                    50 سؤال اختياري (Bilingual MCQ)
+                </span>
+            </div>
+            <h1 class="text-xl sm:text-3xl font-black mb-2 leading-snug">
+                الاختبار الشامل في أساسيات لغة بايثون (50 سؤال اختياري)
+            </h1>
+            <p class="en-text text-slate-300 text-xs sm:text-sm font-semibold">
+                Comprehensive Bilingual Python Assessment: Data Types, Variables, Strings, Lists, Tuples, Conditionals, Loops, Functions &amp; Dictionaries — 50 MCQs
+            </p>
+        </header>
+
+        <!-- Rules & Status Banner (Shown during active exam) -->
+        <div id="examActiveView">
+            <!-- Top Stats & Progress Card -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 mb-5">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-4">
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                        <span class="text-xs text-slate-500 font-bold block">السؤال الحالي / Current</span>
+                        <div class="text-lg sm:text-2xl font-black text-blue-900">
+                            <span id="currentQNum">1</span> <span class="text-sm text-slate-400">/ 50</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                        <span class="text-xs text-slate-500 font-bold block">الوحدة / Unit</span>
+                        <div class="text-xs sm:text-sm font-extrabold text-indigo-700 mt-1.5" id="currentUnitBadge">الوحدة الأولى</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                        <span class="text-xs text-slate-500 font-bold block">تم إنجازه / Completed</span>
+                        <div class="text-lg sm:text-2xl font-black text-emerald-600" id="completedCount">0</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200">
+                        <span class="text-xs text-slate-500 font-bold block">المتبقي / Remaining</span>
+                        <div class="text-lg sm:text-2xl font-black text-amber-600" id="remainingCount">50</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                    <div id="progressBarFill" class="bg-gradient-to-r from-blue-700 via-indigo-600 to-amber-500 h-full transition-all duration-300" style="width: 2%;"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl p-5 sm:p-7 shadow-lg border border-slate-200 mb-6 animate-fade" id="questionCardBox">
+                <!-- Question Header Meta -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b-2 border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-blue-900 text-white px-3 py-1 rounded-lg text-xs sm:text-sm font-black" id="qNumberBadge">
+                            سؤال #1
+                        </span>
+                        <span class="bg-blue-50 text-blue-900 border border-blue-200 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold" id="topicTag">
+                            الدرس 1-1
+                        </span>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold text-slate-500" id="lockIndicator">
+                        اختر الإجابة الصحيحة ثم اضغط تأكيد
+                    </span>
+                </div>
+
+                <!-- Question Text Block -->
+                <div class="mb-5">
+                    <div class="text-lg sm:text-xl font-extrabold text-slate-900 leading-relaxed mb-2.5" id="qTextAr"></div>
+                    <div class="en-text text-sm sm:text-base font-semibold text-slate-600 border-l-4 border-blue-800 pl-3.5 py-1.5 bg-slate-50/90 rounded-r-lg" id="qTextEn"></div>
+                </div>
+
+                <!-- Standalone Python Code Block (Separated cleanly from question text) -->
+                <div id="codeBlockWrapper" class="hidden mb-6 rounded-xl overflow-hidden border border-slate-800 shadow-md bg-slate-900">
+                    <div class="bg-slate-800/90 px-4 py-2 flex items-center justify-between border-b border-slate-700/80" dir="ltr">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                            <span class="text-xs font-bold text-slate-300 ml-2 code-font">python_snippet.py</span>
+                        </div>
+                        <span class="text-[11px] font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
+                            كود السؤال | Code
+                        </span>
+                    </div>
+                    <pre class="p-4 sm:p-5 text-sm sm:text-base text-emerald-300 code-font overflow-x-auto leading-relaxed m-0" id="qCodeContent"></pre>
+                </div>
+
+                <!-- Options Section Header -->
+                <div class="text-xs sm:text-sm font-extrabold text-slate-500 mb-3 flex items-center justify-between">
+                    <span>الاختيارات المتاحة (اختر إجابة واحدة):</span>
+                    <span class="en-text text-xs text-slate-400">Select one option:</span>
+                </div>
+
+                <!-- Options Container -->
+                <div class="space-y-3" id="optionsList"></div>
+
+                <!-- Instant Explanation Box -->
+                <div id="feedbackBox" class="hidden mt-5 p-4 rounded-xl border-r-4 bg-slate-50 text-sm leading-relaxed"></div>
+
+                <!-- Action Bar -->
+                <div class="mt-7 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+                    <button id="resetExamProgressBtn" type="button" class="text-xs font-bold text-slate-400 hover:text-red-600 transition px-2 py-1 rounded">
+                        🔄 إعادة بدء الاختبار من الأول
+                    </button>
+                    <button id="confirmNextBtn" type="button" disabled class="w-full sm:w-auto bg-blue-900 hover:bg-blue-950 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-black px-7 py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-base">
+                        <span id="confirmBtnLabel">تأكيد الإجابة والسؤال التالي ⬅️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locked Final Results View (Shown once exam is finished) -->
+        <div id="examFinishedView" class="hidden animate-fade">
+            <div class="bg-white rounded-3xl p-6 sm:p-9 shadow-xl border-2 border-blue-900/20 mb-6">
+                <div class="text-center">
+                    <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300 px-4 py-1.5 rounded-full text-xs sm:text-sm font-black mb-4">
+                        <span>✅</span>
+                        <span>اكتمل الاختبار بنجاح</span>
+                    </div>
+                    <div class="text-5xl mb-3" id="resultTrophy">🏆</div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-1" id="resultTitle">نتيجة الاختبار النهائية</h2>
+                    <p class="en-text text-center text-slate-500 text-xs sm:text-sm font-semibold mb-6" id="resultTimestamp"></p>
+
+                    <!-- Score Circle & Summary Metrics -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
+                        <div class="bg-blue-50 border-2 border-blue-900 rounded-2xl p-4 flex flex-col justify-center items-center">
+                            <span class="text-xs font-bold text-blue-800 mb-1">الدرجة النهائية / Total Score</span>
+                            <div class="text-3xl sm:text-4xl font-black text-blue-900">
+                                <span id="finalScoreValue">0</span> <span class="text-lg text-slate-500">/ 50</span>
+                            </div>
+                            <span class="text-xs font-extrabold text-amber-600 mt-1" id="finalPercentage">0%</span>
+                        </div>
+                        <div class="bg-emerald-50 border-2 border-emerald-600 rounded-2xl p-4 flex flex-col justify-center items-center">
+                            <span class="text-xs font-bold text-emerald-800 mb-1">الإجابات الصحيحة / Correct</span>
+                            <div class="text-3xl sm:text-4xl font-black text-emerald-700" id="finalCorrectCount">0</div>
+                            <span class="text-xs font-bold text-emerald-600 mt-1">سؤال صحيح</span>
+                        </div>
+                        <div class="bg-red-50 border-2 border-red-600 rounded-2xl p-4 flex flex-col justify-center items-center">
+                            <span class="text-xs font-bold text-red-800 mb-1">الإجابات الخاطئة / Wrong</span>
+                            <div class="text-3xl sm:text-4xl font-black text-red-700" id="finalWrongCount">0</div>
+                            <span class="text-xs font-bold text-red-600 mt-1">سؤال خاطئ</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <button id="retakeFullExamBtn" type="button" class="bg-slate-800 hover:bg-slate-950 text-white text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-xl shadow transition">
+                            🔄 إعادة خوض الاختبار من جديد (Retake Exam)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wrong Question Numbers Section -->
+                <div class="bg-red-50/70 border-2 border-red-200 rounded-2xl p-5 sm:p-6 mb-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <h3 class="text-lg sm:text-xl font-black text-red-900 flex items-center gap-2">
+                            <span>❌</span>
+                            <span>أرقام الأسئلة التي أخطأت فيها (Wrong Question Numbers):</span>
+                        </h3>
+                        <button id="copyWrongNumsBtn" type="button" class="bg-white hover:bg-red-100 text-red-800 border border-red-300 text-xs font-extrabold px-3.5 py-1.5 rounded-lg transition">
+                            📋 نسخ أرقام الأسئلة الخاطئة
+                        </button>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600 font-semibold mb-3">
+                        انقر على أي رقم من أرقام الأسئلة الخاطئة أدناه للانتقال إلى تفاصيل السؤال ومراجعة الكود وإجابتك والإجابة الصحيحة:
+                    </p>
+                    <div id="wrongNumbersBadges" class="flex flex-wrap gap-2"></div>
+                    <div id="WrongNumbersTextLine" class="mt-4 p-3 bg-white rounded-xl border border-red-200 text-xs sm:text-sm font-extrabold text-slate-800 break-words"></div>
+                </div>
+
+                <!-- Detailed Review Toggle of Wrong Questions -->
+                <div class="border-t-2 border-slate-100 pt-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <h3 class="text-base sm:text-lg font-black text-slate-900">
+                            📖 المراجعة التفصيلية للأسئلة والكود البرمجي (<span id="wrongReviewCountLabel">0</span> سؤال خاطئ):
+                        </h3>
+                        <div class="flex gap-2">
+                            <button id="filterWrongOnlyBtn" type="button" class="bg-red-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition">
+                                عرض الأسئلة الخاطئة فقط
+                            </button>
+                            <button id="filterAllQuestionsBtn" type="button" class="bg-slate-200 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl transition">
+                                عرض جميع الـ 50 سؤال
+                            </button>
+                        </div>
+                    </div>
+                    <div id="detailedReviewContainer" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirmation Modal for Resetting Exam -->
+        <div id="resetConfirmModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-fade">
+                <h3 class="text-lg font-black text-slate-900 mb-2">تأكيد إعادة بدء الاختبار</h3>
+                <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                    هل أنت متأكد من رغبتك في مسح التقدم الحالي وإعادة بدء الاختبار من السؤال الأول؟
+                </p>
+                <div class="flex items-center justify-end gap-3">
+                    <button id="cancelResetBtn" type="button" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition">
+                        إلغاء
+                    </button>
+                    <button id="confirmResetBtn" type="button" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition">
+                        نعم، ابدأ من جديد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const QUESTIONS = [{"id": 1, "unit": "أساسيات بايثون | Python Basics", "topic": "الطباعة وأنواع البيانات | Print & Data Types", "ar_q": "ما هو ناتج تنفيذ الكود التالي في بايثون؟", "en_q": "What is the output of executing the following code in Python?", "code": "print(\"ali\")", "options": [{"ar": "يطبع النص \"ali\" محاطاً بعلامات التنصيص على الشاشة", "en": "Prints the text \"ali\" enclosed inside quotation marks"}, {"ar": "يطبع النص ali مباشرة بدون علامات التنصيص", "en": "Prints the text ali directly without any quotation marks"}, {"ar": "يتوقف البرنامج ويعرض خطأ SyntaxError في السطر", "en": "Stops execution and raises a SyntaxError on that line"}, {"ar": "يطبع الكلمة المحجوزة print متبوعة بالنص ali", "en": "Prints the keyword print followed by the string ali"}], "correct": 1, "exp_ar": "دالة print() تقوم بطباعة النص الموجود داخل علامات التنصيص كما هو بدون طباعة علامات التنصيص نفسها.", "exp_en": "The print() function outputs the string inside the quotation marks without the quotes themselves."}, {"id": 2, "unit": "أساسيات بايثون | Python Basics", "topic": "أنواع البيانات | Data Types", "ar_q": "أي نوع من أنواع البيانات التالية يُكتب داخل علامات تنصيص مفردة أو مزدوجة ويُرمز له بالاختصار str؟", "en_q": "Which data type is written inside single or double quotes and abbreviated as str?", "code": "msg = 'Hello Python'", "options": [{"ar": "السلاسل النصية المخصصة لتمثيل الحروف والكلمات (string)", "en": "Text sequences representing characters and words (string)"}, {"ar": "الأعداد الصحيحة الموجبة والسالبة الخالية من الكسور (integer)", "en": "Positive and negative whole numbers without decimals (integer)"}, {"ar": "الأعداد الحقيقية التي تحتوي على فاصلة عشرية (float)", "en": "Real numbers containing a decimal point (float)"}, {"ar": "القيم المنطقية التي تعبر عن الصواب أو الخطأ (boolean)", "en": "Logical values representing truth or falsehood (boolean)"}], "correct": 0, "exp_ar": "النوع string (ويختصر بـ str) يمثل النصوص ويكتب دائماً بين علامات تنصيص مفردة '' أو مزدوجة \"\".", "exp_en": "The string type (str) represents text and is enclosed in single '' or double \"\" quotes."}, {"id": 3, "unit": "أساسيات بايثون | Python Basics", "topic": "أنواع البيانات | Data Types", "ar_q": "ما هو نوع البيانات الذي يمثل الأرقام الصحيحة الموجبة والسالبة والصفر بدون أي كسور عشرية؟", "en_q": "Which data type represents positive, negative, and zero whole numbers without any decimal fractions?", "code": "numbers = (1, 2, 0, -1, -3)", "options": [{"ar": "float (الأعداد العشرية)", "en": "float (floating-point numbers)"}, {"ar": "str (السلاسل النصية)", "en": "str (character strings)"}, {"ar": "bool (القيم المنطقية)", "en": "bool (boolean values)"}, {"ar": "int (الأعداد الصحيحة)", "en": "int (integer numbers)"}], "correct": 3, "exp_ar": "النوع integer (ويختصر بـ int) يمثل الأعداد الصحيحة بدون كسور عشرية سواء كانت موجبة أو سالبة أو صفراً.", "exp_en": "The integer type (int) represents whole numbers without decimal points, including positive, negative, and zero."}, {"id": 4, "unit": "أساسيات بايثون | Python Basics", "topic": "أنواع البيانات | Data Types", "ar_q": "الأرقام التي تحتوي على علامة عشرية كما في المثال التالي تُصنف في لغة بايثون ضمن النوع:", "en_q": "Numbers containing a decimal point as shown in the example below are classified in Python as:", "code": "values = (1.5, 6.2, -5.2)", "options": [{"ar": "int (عدد صحيح)", "en": "int (integer number)"}, {"ar": "str (سلسلة نصية)", "en": "str (text string)"}, {"ar": "float (عدد عشري)", "en": "float (floating-point)"}, {"ar": "bool (قيمة منطقية)", "en": "bool (boolean value)"}], "correct": 2, "exp_ar": "النوع float يمثل الأعداد العشرية (الكسور العشرية) الموجبة والسالبة مثل 1.5 و -5.2.", "exp_en": "The float data type represents floating-point numbers containing decimals like 1.5 and -5.2."}, {"id": 5, "unit": "أساسيات بايثون | Python Basics", "topic": "أنواع البيانات | Data Types", "ar_q": "النوع المنطقي (boolean) والذي يُرمز له بالاختصار bool يقبل إحدى قيمتين فقط في بايثون وهما:", "en_q": "The boolean data type (abbreviated as bool) accepts only one of two built-in values in Python, which are:", "code": "is_active = True\nis_admin = False", "options": [{"ar": "القيمتان Yes أو No مكتوبتان بحروف كبيرة في البداية", "en": "The values Yes or No written with an initial capital letter"}, {"ar": "القيمتان True أو False مع كتابة الحرف الأول كبيراً", "en": "The values True or False starting with an uppercase letter"}, {"ar": "الأرقام العشرية 1.5 للإثبات أو -1.5 للنفي المنطقي", "en": "The decimal numbers 1.5 for truth or -1.5 for negation"}, {"ar": "الكلمتان 'true' أو 'false' بحروف صغيرة داخل تنصيص", "en": "The words 'true' or 'false' in lowercase inside quotes"}], "correct": 1, "exp_ar": "النوع boolean (bool) يأخذ القيمة True أو False مع ضرورة كتابة الحرف الأول كبيراً (Capital) وبدون علامات تنصيص.", "exp_en": "The boolean type (bool) takes either True or False, starting with an uppercase letter and without quotes."}, {"id": 6, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات ودالة النوع | Variables & type()", "ar_q": "ما هو الناتج الذي يظهر على الشاشة عند تنفيذ الكود التالي؟", "en_q": "What output is displayed on the screen when executing the following code?", "code": "x = 5.3\nprint(type(x))", "options": [{"ar": "<class 'float'>", "en": "<class 'float'>"}, {"ar": "<class 'str'>", "en": "<class 'str'>"}, {"ar": "<class 'int'>", "en": "<class 'int'>"}, {"ar": "<class 'bool'>", "en": "<class 'bool'>"}], "correct": 0, "exp_ar": "الدالة type(x) ترجع نوع القيمة المخزنة في المتغير x، وبما أن 5.3 عدد عشري فالناتج هو <class 'float'>.", "exp_en": "The type(x) function returns the data type of x; since 5.3 is a decimal number, it outputs <class 'float'>."}, {"id": 7, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات | Variables", "ar_q": "ماذا يحدث عند محاولة تشغيل الكود التالي في مفسر بايثون؟", "en_q": "What happens when attempting to run the following code in the Python interpreter?", "code": "2name = 'ali'\nprint(2name)", "options": [{"ar": "يقبل المفسر التسمية ويطبع النص ali في سطر جديد", "en": "The interpreter accepts the name and prints ali on a new screen line"}, {"ar": "يتجاهل المفسر الحروف ويطبع الرقم 2 فقط على الشاشة", "en": "The interpreter ignores the letters and prints only the number 2"}, {"ar": "يدمج المفسر الرقم مع القيمة ويطبع الناتج 2ali", "en": "The interpreter merges the digit with the value and prints 2ali"}, {"ar": "يظهر خطأ SyntaxError لأن اسم المتغير بدأ برقم", "en": "Raises a SyntaxError since variable names cannot start with digits"}], "correct": 3, "exp_ar": "في قواعد تسمية المتغيرات في بايثون، لا يجوز أن يبدأ اسم المتغير برقم مثل 2name.", "exp_en": "In Python variable naming rules, a variable name cannot begin with a digit like 2name."}, {"id": 8, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات | Variables", "ar_q": "أي من الأسطر البرمجية التالية يحتوي على اسم متغير صحيح ومقبول وفق قواعد بايثون؟", "en_q": "Which of the following lines of code contains a valid variable name according to Python rules?", "code": "# اختر طريقة التسمية الصحيحة للمتغير\n# Choose the valid variable declaration", "options": [{"ar": "my name = 'ali'", "en": "my name = 'ali'"}, {"ar": "name$ = 'ali'", "en": "name$ = 'ali'"}, {"ar": "my_name = 'ali'", "en": "my_name = 'ali'"}, {"ar": "2name = 'ali'", "en": "2name = 'ali'"}], "correct": 2, "exp_ar": "الاسم my_name صحيح لأنه يستخدم الشرطة السفلية (underscore) بدلاً من المسافة أو الرموز الخاصة مثل $ أو البدء برقم.", "exp_en": "my_name is valid because it uses an underscore instead of spaces, special symbols like $, or starting with a number."}, {"id": 9, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات | Variables", "ar_q": "لماذا يفشل تنفيذ السطر البرمجي التالي ويعطي خطأ SyntaxError عند تشغيله؟", "en_q": "Why does executing the following line of code fail and raise a SyntaxError?", "code": "my name = 'ali'", "options": [{"ar": "لأن القيمة النصية المسندة للمتغير مكتوبة بحروف صغيرة", "en": "Because the assigned string value is written in lowercase"}, {"ar": "لوجود مسافة فارغة تفصل بين كلمتي اسم المتغير", "en": "Because there is a blank space separating the variable name"}, {"ar": "لأنه يشترط استخدام علامات التنصيص المزدوجة مع النصوص", "en": "Because double quotation marks are required for strings"}, {"ar": "لأن عدد حروف اسم المتغير يتجاوز الحد المسموح به", "en": "Because the variable name exceeds the maximum character limit"}], "correct": 1, "exp_ar": "لا يُسمح بوجود مسافات فارغة داخل اسم المتغير في بايثون، ونستبدل المسافة بالشرطة السفلية (_).", "exp_en": "Spaces are not allowed inside variable names in Python; underscores (_) are used instead."}, {"id": 10, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات | Variables", "ar_q": "ما هي النتيجة المترتبة على استخدام الرمز الخاص $ داخل اسم المتغير في الكود التالي؟", "en_q": "What is the result of using the special character $ inside the variable name in the code below?", "code": "name$ = 'ali'\nprint(name$)", "options": [{"ar": "يحدث خطأ SyntaxError لعدم السماح بالرموز الخاصة في التسمية", "en": "Raises a SyntaxError because special symbols are not allowed"}, {"ar": "يتحول المتغير تلقائياً إلى نوع بيانات مخصص للعملات المالية", "en": "Automatically converts the variable to a currency data type"}, {"ar": "يطبع القيمة النصية متبوعة بعلامة الدولار 'ali$' على الشاشة", "en": "Prints the string value followed by the dollar sign 'ali$'"}, {"ar": "يحفظ المتغير كقيمة ثابتة محمية لا يمكن تعديلها لاحقاً", "en": "Stores the variable as a protected constant that cannot change"}], "correct": 0, "exp_ar": "أسماء المتغيرات تقبل الحروف والأرقام والشرطة السفلية (_) فقط، ولا تقبل الرموز الخاصة مثل $.", "exp_en": "Variable names only allow letters, numbers, and underscores (_); special characters like $ cause a SyntaxError."}, {"id": 11, "unit": "أساسيات بايثون | Python Basics", "topic": "المتغيرات | Variables", "ar_q": "ماذا يحدث عند تنفيذ هذين السطرين معاً بالترتيب في بايثون؟", "en_q": "What happens when executing these two lines sequentially in Python?", "code": "print = 'ali'\nprint(print)", "options": [{"ar": "تُطبع الكلمة النصية ali مرتين متتاليتين في سطرين منفصلين", "en": "Prints the string word ali twice on two separate lines"}, {"ar": "يتم مسح محتويات شاشة المخرجات بالكامل وإعادة تهيئة الدالة", "en": "Clears the entire output console and resets the function"}, {"ar": "يُطبع وصف النوع البرمجي للمتغير <class 'str'> على الشاشة", "en": "Prints the variable type description <class 'str'> on screen"}, {"ar": "يظهر خطأ TypeError لأن المتغير النصي حل محل دالة الطباعة", "en": "Raises a TypeError because the string variable shadowed print()"}], "correct": 3, "exp_ar": "عند كتابة print = 'ali' يصبح print متغيراً نصياً بدلاً من دالة الطباعة، وعند محاولة استدعائه بـ print(print) يظهر خطأ TypeError لأن النص غير قابل للاستدعاء كدالة.", "exp_en": "Assigning print = 'ali' shadows the built-in print() function with a string, so calling print(print) raises a TypeError."}, {"id": 12, "unit": "النصوص | Strings", "topic": "الفهرسة | String Indexing", "ar_q": "ما هو الحرف الذي ستتم طباعته عند تنفيذ الكود التالي؟", "en_q": "Which character will be printed when executing the following code?", "code": "name = 'ahmed'\nprint(name[1])", "options": [{"ar": "الحرف 'a' الموجود في بداية النص", "en": "The character 'a' at the start of the string"}, {"ar": "الحرف 'm' الموجود في منتصف النص", "en": "The character 'm' in the middle of the string"}, {"ar": "الحرف 'h' الموجود في الفهرس رقم 1", "en": "The character 'h' located at index number 1"}, {"ar": "المقطع 'ah' المكون من أول حرفين", "en": "The substring 'ah' consisting of the first two letters"}], "correct": 2, "exp_ar": "الفهرسة (Indexing) في بايثون تبدأ من الصفر (0)، لذلك الحرف عند الفهرس 0 هو 'a' وعند الفهرس 1 هو 'h'.", "exp_en": "Indexing in Python starts at 0, so index 0 is 'a' and index 1 is 'h'."}, {"id": 13, "unit": "النصوص | Strings", "topic": "اقتطاع النصوص | String Slicing", "ar_q": "ما هو ناتج عملية اقتطاع النص (Slicing) في الكود التالي؟", "en_q": "What is the output of the string slicing operation in the following code?", "code": "name = 'ahmed'\nprint(name[3:5])", "options": [{"ar": "me", "en": "me"}, {"ar": "ed", "en": "ed"}, {"ar": "med", "en": "med"}, {"ar": "hm", "en": "hm"}], "correct": 1, "exp_ar": "في الاقتطاع [3:5] نبدأ من الفهرس 3 (وهو الحرف 'e') حتى الفهرس 4 (وهو الحرف 'd') لأن رقم النهاية 5 غير مشمول، فيكون الناتج 'ed'.", "exp_en": "Slicing [3:5] extracts characters from index 3 ('e') up to index 4 ('d') because end index 5 is exclusive, yielding 'ed'."}, {"id": 14, "unit": "النصوص | Strings", "topic": "الفهرسة السالبة | Negative Indexing", "ar_q": "ما هي المخرجات التي يطبعها السطران الأول والثاني على الترتيب في الكود التالي؟", "en_q": "What are the outputs printed by the first and second print statements respectively?", "code": "name = 'ahmeddhgrhwhwe'\nprint(name[-1])\nprint(name[-3:])", "options": [{"ar": "يطبع 'e' ثم يطبع 'hwe'", "en": "Prints 'e' then prints 'hwe'"}, {"ar": "يطبع 'a' ثم يطبع 'ahm'", "en": "Prints 'a' then prints 'ahm'"}, {"ar": "يطبع 'w' ثم يطبع 'whw'", "en": "Prints 'w' then prints 'whw'"}, {"ar": "يطبع 'e' ثم يطبع 'ewh'", "en": "Prints 'e' then prints 'ewh'"}], "correct": 0, "exp_ar": "الفهرس [-1] يجلب آخر حرف في النص وهو 'e'، والاقتطاع [-3:] يجلب آخر 3 حروف من النص وهي 'hwe'.", "exp_en": "Index [-1] gets the last character ('e'), and slice [-3:] gets the last three characters ('hwe')."}, {"id": 15, "unit": "النصوص | Strings", "topic": "دوال النصوص | String Methods", "ar_q": "ما هو ناتج تطبيق الدالة upper() على المتغير النصي في الكود التالي؟", "en_q": "What is the output of applying the upper() method to the string variable below?", "code": "name = 'ahmed'\nprint(name.upper())", "options": [{"ar": "Ahmed", "en": "Ahmed"}, {"ar": "aHMED", "en": "aHMED"}, {"ar": "ahmed", "en": "ahmed"}, {"ar": "AHMED", "en": "AHMED"}], "correct": 3, "exp_ar": "الدالة upper() تقوم بتحويل جميع حروف النص إلى حروف كبيرة (Capital Letters) ليصبح AHMED.", "exp_en": "The .upper() method converts all characters in the string to uppercase ('AHMED')."}, {"id": 16, "unit": "النصوص | Strings", "topic": "دوال النصوص | String Methods", "ar_q": "ما هو النص الناتج بعد تنفيذ دالة الاستبدال replace() في الكود التالي؟", "en_q": "What is the resulting string after executing the replace() method in the code below?", "code": "name = 'ahmed'\nprint(name.replace('hm', 'rrrr'))", "options": [{"ar": "ahmedrrrr", "en": "ahmedrrrr"}, {"ar": "rrrrd", "en": "rrrrd"}, {"ar": "arrrred", "en": "arrrred"}, {"ar": "ahmrrrred", "en": "ahmrrrred"}], "correct": 2, "exp_ar": "الدالة replace('hm', 'rrrr') تستبدل المقطع 'hm' في كلمة 'ahmed' بالمقطع 'rrrr' فتصبح النتيجة 'arrrred'.", "exp_en": "The .replace('hm', 'rrrr') method replaces 'hm' in 'ahmed' with 'rrrr', resulting in 'arrrred'."}, {"id": 17, "unit": "النصوص | Strings", "topic": "طول النص والفهرس | len() & index()", "ar_q": "ما هي القيمتان اللتان يطبعهما السطران التاليان على الترتيب؟", "en_q": "What are the two values printed by the following lines respectively?", "code": "name = 'ahmed'\nprint(len(name))\nprint(name.index('h'))", "options": [{"ar": "يطبع 4 ثم يطبع 2", "en": "Prints 4 then prints 2"}, {"ar": "يطبع 5 ثم يطبع 1", "en": "Prints 5 then prints 1"}, {"ar": "يطبع 5 ثم يطبع 2", "en": "Prints 5 then prints 2"}, {"ar": "يطبع 4 ثم يطبع 1", "en": "Prints 4 then prints 1"}], "correct": 1, "exp_ar": "الدالة len(name) تحسب عدد حروف 'ahmed' وهو 5، والدالة name.index('h') ترجع موقع الحرف 'h' وهو 1 (لأن العد يبدأ من 0).", "exp_en": "len('ahmed') returns the character count (5), and 'ahmed'.index('h') returns the 0-based index of 'h' (1)."}, {"id": 18, "unit": "النصوص | Strings", "topic": "النصوص المنسقة | f-strings", "ar_q": "ما هو ناتج طباعة النص المنسق (f-string) في الكود التالي؟", "en_q": "What is the output of printing the formatted string (f-string) in the code below?", "code": "name = 'ahmed'\nage = 13\nprint(f'** {name} ** {age} **')", "options": [{"ar": "** ahmed ** 13 **", "en": "** ahmed ** 13 **"}, {"ar": "** {name} ** {age} **", "en": "** {name} ** {age} **"}, {"ar": "** 'ahmed' ** '13' **", "en": "** 'ahmed' ** '13' **"}, {"ar": "f'** ahmed ** 13 **'", "en": "f'** ahmed ** 13 **'"}], "correct": 0, "exp_ar": "في الـ f-string، يتم تعويض المتغيرات الموضوعة داخل الأقواس المعكوفة {} بقيمتها الفعلية، فيطبع ** ahmed ** 13 **.", "exp_en": "In an f-string, variables inside curly braces {} are replaced with their values, outputting ** ahmed ** 13 **."}, {"id": 19, "unit": "النصوص | Strings", "topic": "النصوص المنسقة | f-strings", "ar_q": "ما هو الناتج الذي يطبع على الشاشة عند تنفيذ السطر البرمجي التالي؟", "en_q": "What output is printed on the screen when executing the following line of code?", "code": "print(f'{5 + 3}')", "options": [{"ar": "يطبع النص الحسابي 5 + 3 بدون جمع", "en": "Prints the arithmetic text 5 + 3 without adding"}, {"ar": "يطبع التعبير {5 + 3} مع الأقواس المعكوفة", "en": "Prints the expression {5 + 3} with curly braces"}, {"ar": "يدمج الرقمين كنصوص ويطبع القيمة 53", "en": "Concatenates the digits as strings and prints 53"}, {"ar": "يحسب ناتج عملية الجمع أولاً ويطبع القيمة 8", "en": "Evaluates the addition first and prints the value 8"}], "correct": 3, "exp_ar": "الأقواس المعكوفة {} داخل الـ f-string تقوم بحساب العملية الحسابية 5+3 أولاً ثم تحويل الناتج إلى نص، فيطبع 8.", "exp_en": "Expressions inside {} in an f-string are evaluated first, so 5+3 evaluates to 8."}, {"id": 20, "unit": "المكتبات | Modules", "topic": "مكتبة العشوائية | random Module", "ar_q": "ما هي الوظيفة البرمجية التي يؤديها الكود التالي؟", "en_q": "What programming function does the following code perform?", "code": "import random\nx = random.randint(1, 100)", "options": [{"ar": "يولد كسراً عشرياً عشوائياً محصوراً بين الصفر والواحد الصحيح", "en": "Generates a random decimal fraction strictly between 0 and 1"}, {"ar": "يرتب ويطبع جميع الأعداد الصحيحة من 1 إلى 100 تصاعدياً", "en": "Sorts and prints all whole numbers from 1 to 100 in ascending order"}, {"ar": "يختار عدداً صحيحاً عشوائياً في المدى من 1 إلى 100 شاملاً الطرفين", "en": "Selects a random integer between 1 and 100 inclusive"}, {"ar": "يجمع العددين الممررين للدالة ويخزن القيمة 101 في المتغير x", "en": "Adds the two passed arguments and stores 101 in the variable x"}], "correct": 2, "exp_ar": "الدالة random.randint(1, 100) تختار عدداً صحيحاً عشوائياً في المدى من 1 إلى 100 شاملاً الرقمين 1 و 100.", "exp_en": "random.randint(1, 100) returns a random integer N such that 1 <= N <= 100."}, {"id": 21, "unit": "المكتبات | Modules", "topic": "استيراد الدوال | from ... import", "ar_q": "بعد استيراد الدالة بالطريقة الموضحة في الكود أدناه، كيف يتم استدعاؤها بشكل صحيح؟", "en_q": "After importing the function as shown in the code below, how is it called correctly?", "code": "from random import randint", "options": [{"ar": "نكتب x = import.randint(1, 100) لاستدعائها عبر الكلمة المفتاحية", "en": "Write x = import.randint(1, 100) to call it via the keyword"}, {"ar": "نكتب x = randint(1, 100) مباشرة بدون كتابة اسم المكتبة قبلها", "en": "Write x = randint(1, 100) directly without the module prefix"}, {"ar": "نكتب x = random.randint() بدون تمرير أي أرقام داخل الأقواس", "en": "Write x = random.randint() without passing any arguments"}, {"ar": "نكتب x = random(1, 100) لأن اسم المكتبة يحل محل اسم الدالة", "en": "Write x = random(1, 100) since the module name replaces it"}], "correct": 1, "exp_ar": "عند استيراد الدالة مباشرة بـ from random import randint يمكننا مناداتها باسمها مباشرة randint(1, 100).", "exp_en": "Importing randint directly via from random import randint allows calling randint(1, 100) without the module prefix."}, {"id": 22, "unit": "القوائم | Lists", "topic": "الاقتطاع والخصائص | List Slicing & Methods", "ar_q": "ما هو ناتج عملية اقتطاع القائمة (List Slicing) في الكود التالي؟", "en_q": "What is the output of the list slicing operation in the following code?", "code": "students = ['ali', 'omar', 'ahmed']\nprint(students[0:2])", "options": [{"ar": "['ali', 'omar']", "en": "['ali', 'omar']"}, {"ar": "['ali', 'omar', 'ahmed']", "en": "['ali', 'omar', 'ahmed']"}, {"ar": "['omar', 'ahmed']", "en": "['omar', 'ahmed']"}, {"ar": "['ali', 'ahmed']", "en": "['ali', 'ahmed']"}], "correct": 0, "exp_ar": "الاقتطاع [0:2] يأخذ العناصر من الفهرس 0 ('ali') والفهرس 1 ('omar') ويتوقف قبل الفهرس 2، فينتج ['ali', 'omar'].", "exp_en": "Slicing [0:2] takes elements at index 0 ('ali') and index 1 ('omar'), stopping before index 2."}, {"id": 23, "unit": "القوائم | Lists", "topic": "الطول والفهرس | len() & index()", "ar_q": "ما هي المخرجات التي يطبعها السطران التاليان على القائمة students بالترتيب؟", "en_q": "What outputs are printed by the two lines on the students list respectively?", "code": "students = ['ali', 'omar', 'ahmed']\nprint(len(students))\nprint(students.index('omar'))", "options": [{"ar": "يطبع 3 ثم يطبع 0", "en": "Prints 3 then prints 0"}, {"ar": "يطبع 3 ثم يطبع 2", "en": "Prints 3 then prints 2"}, {"ar": "يطبع 2 ثم يطبع 1", "en": "Prints 2 then prints 1"}, {"ar": "يطبع 3 ثم يطبع 1", "en": "Prints 3 then prints 1"}], "correct": 3, "exp_ar": "عدد عناصر القائمة len(students) هو 3، وموقع العنصر 'omar' هو الفهرس 1 لأن 'ali' في الفهرس 0.", "exp_en": "The list has 3 elements, and 'omar' is at index 1 since 'ali' is at index 0."}, {"id": 24, "unit": "القوائم | Lists", "topic": "تعديل عناصر القائمة | Modifying Lists", "ar_q": "كيف تصبح عناصر القائمة students بعد تنفيذ التعديل الموضح في الكود التالي؟", "en_q": "What does the students list become after executing the modification in the code below?", "code": "students = ['ali', 'omar', 'ahmed']\nstudents[1] = 'mohamed'\nprint(students)", "options": [{"ar": "['mohamed', 'omar', 'ahmed']", "en": "['mohamed', 'omar', 'ahmed']"}, {"ar": "['ali', 'omar', 'mohamed']", "en": "['ali', 'omar', 'mohamed']"}, {"ar": "['ali', 'mohamed', 'ahmed']", "en": "['ali', 'mohamed', 'ahmed']"}, {"ar": "['ali', 'mohamed', 'omar']", "en": "['ali', 'mohamed', 'omar']"}], "correct": 2, "exp_ar": "العنصر في الفهرس 1 هو 'omar'، وعند إسناد 'mohamed' إلى students[1] يتم استبدال 'omar' بـ 'mohamed'.", "exp_en": "Index 1 holds 'omar'; assigning students[1] = 'mohamed' replaces 'omar' with 'mohamed'."}, {"id": 25, "unit": "القوائم | Lists", "topic": "الإضافة للقائمة | append() vs insert()", "ar_q": "ما الفرق الجوهري بين الدالتين append() و insert() عند تنفيذهما على القائمة التالية؟", "en_q": "What is the key difference between append() and insert() when executed on the list below?", "code": "students = ['ali', 'omar', 'ahmed']\nstudents.append('mohamed')\nstudents.insert(1, 'mohamed')", "options": [{"ar": "الدالة append تضيف العنصر في أول القائمة، بينما insert تحذف العنصر الموجود في الفهرس 1", "en": "append adds the item at the start of the list, while insert deletes the item at index 1"}, {"ar": "الدالة append تضيف العنصر في نهاية القائمة، بينما insert تدرجه في الفهرس المحدد رقم 1", "en": "append adds the item at the end of the list, while insert places it at the specified index 1"}, {"ar": "كلتا الدالتين تضيفان العنصر الجديد في نهاية القائمة وتزيدان طولها بنفس الترتيب", "en": "Both methods add the new item at the very end of the list in the exact same order"}, {"ar": "الدالة append تستبدل العنصر الأخير في القائمة، بينما insert تعيد ترتيب القائمة أبجدياً", "en": "append replaces the last item in the list, while insert sorts the list alphabetically"}], "correct": 1, "exp_ar": "الدالة append() تضيف العنصر دائماً في نهاية القائمة، بينما insert(index, item) تدرج العنصر في الفهرس المحدد دون حذف العناصر السابقة.", "exp_en": "append() adds an element to the end of the list, whereas insert(1, 'mohamed') places it specifically at index 1."}, {"id": 26, "unit": "القوائم | Lists", "topic": "الحذف من القائمة | remove() & pop()", "ar_q": "ما هي القيمة المخزنة في المتغير x والتي ستتم طباعتها بعد تنفيذ الكود التالي؟", "en_q": "What value is stored in variable x and printed after executing the code below?", "code": "students = ['ali', 'omar', 'ahmed']\nx = students.pop()\nprint(x)", "options": [{"ar": "تُطبع القيمة النصية 'ahmed' لأنها آخر عنصر تم سحبه من القائمة", "en": "Prints the string value 'ahmed' popped from the list end"}, {"ar": "تُطبع القيمة النصية 'ali' لأن الحذف الافتراضي يبدأ من الفهرس صفر", "en": "Prints the string value 'ali' because default popping starts at index 0"}, {"ar": "تُطبع القيمة النصية 'omar' لأنها تقع في منتصف عناصر القائمة", "en": "Prints the string value 'omar' because it is in the middle of the list"}, {"ar": "تُطبع القائمة المتبقية ['ali', 'omar'] بالكامل بعد حذف العنصر الأخير", "en": "Prints the remaining list ['ali', 'omar'] after removing the last item"}], "correct": 0, "exp_ar": "الدالة pop() بدون تحديد فهرس تقوم بحذف آخر عنصر في القائمة ('ahmed') وإرجاع قيمته ليتم تخزينها في المتغير x.", "exp_en": "Calling pop() without arguments removes and returns the last element in the list ('ahmed')."}, {"id": 27, "unit": "القوائم | Lists", "topic": "الحذف من القائمة | remove() & pop(index)", "ar_q": "ما هو أثر تنفيذ إحدى العمليتين التاليتين على القائمة الأصلية students؟", "en_q": "What is the effect of executing either of the following two operations on the students list?", "code": "students = ['ali', 'omar', 'ahmed']\n# العملية الأولى: students.remove('omar')\n# العملية الثانية: students.pop(1)", "options": [{"ar": "يتوقف الكود ويظهر خطأ لأن القوائم لا تقبل حذف العناصر بعد تعريفها", "en": "Raises an error because lists do not allow element deletion after creation"}, {"ar": "يتم حذف العنصر الأول 'ali' وتصبح القائمة المتبقية ['omar', 'ahmed']", "en": "Removes the first element 'ali' leaving the list as ['omar', 'ahmed']"}, {"ar": "يتم حذف العنصر الأخير 'ahmed' وتصبح القائمة المتبقية ['ali', 'omar']", "en": "Removes the last element 'ahmed' leaving the list as ['ali', 'omar']"}, {"ar": "في الحالتين يتم حذف 'omar' وتصبح القائمة المتبقية ['ali', 'ahmed']", "en": "In both cases 'omar' is removed leaving the list as ['ali', 'ahmed']"}], "correct": 3, "exp_ar": "remove('omar') تحذف العنصر بقيمته، بينما pop(1) تحذف العنصر الموجود في الفهرس 1 (وهو 'omar' أيضاً)، فتصبح القائمة ['ali', 'ahmed'].", "exp_en": "remove('omar') deletes by value and pop(1) deletes by index 1 (which is also 'omar'), leaving ['ali', 'ahmed']."}, {"id": 28, "unit": "القوائم | Lists", "topic": "الترتيب والعكس | sort() & reverse()", "ar_q": "ما هي الوظيفة الصحيحة لكل دالة من الدوال الثلاث الموضحة في الكود التالي؟", "en_q": "What is the accurate function of each of the three list methods shown in the code below?", "code": "students.sort()\nstudents.sort(reverse=1)\nstudents.reverse()", "options": [{"ar": "الأولى تعكس القائمة الحالية، والثانية ترتبها تصاعدياً، والثالثة ترتبها تنازلياً", "en": "The first reverses the list, the second sorts ascending, and the third sorts descending"}, {"ar": "الأولى تحذف المكرر، والثانية تدمج العناصر، والثالثة تفرغ القائمة بالكامل", "en": "The first removes duplicates, the second merges items, and the third clears the list"}, {"ar": "الأولى ترتب تصاعدياً، والثانية ترتب تنازلياً، والثالثة تعكس الترتيب الحالي للقائمة", "en": "The first sorts ascending, the second sorts descending, and the third reverses current order"}, {"ar": "الأولى ترتب حسب الطول، والثانية ترتب عشوائياً، والثالثة تنسخ القائمة في متغير جديد", "en": "The first sorts by length, the second shuffles randomly, and the third copies the list"}], "correct": 2, "exp_ar": "sort() ترتب العناصر أبجدياً أو تصاعدياً، وعند تمرير reverse=1 (أو True) ترتب تنازلياً، أما reverse() فتعكس ترتيب عناصر القائمة الحالي كما هي.", "exp_en": "sort() sorts in ascending order, sort(reverse=1) sorts in descending order, and reverse() reverses the elements in place."}, {"id": 29, "unit": "القوائم | Lists", "topic": "عدّ العناصر | count()", "ar_q": "ما هي القيمة التي تطبعها الدالة count() عند البحث عن عنصر غير موجود في القائمة التالية؟", "en_q": "What value is printed by the count() method when searching for an item not in the list?", "code": "students = ['ali', 'omar', 'ahmed']\nprint(students.count('clara'))", "options": [{"ar": "تطبع الرقم 1 كقيمة افتراضية للبحث", "en": "Prints 1 as a default search value"}, {"ar": "تطبع الرقم 0 لعدم وجود العنصر في القائمة", "en": "Prints 0 because the item is not in the list"}, {"ar": "تطبع الرقم -1 للإشارة إلى فشل العثور عليه", "en": "Prints -1 to indicate the item was not found"}, {"ar": "تتوقف وتعطي خطأ ValueError أثناء التنفيذ", "en": "Stops and raises a ValueError at runtime"}], "correct": 1, "exp_ar": "الدالة count('clara') تحسب عدد مرات تكرار 'clara' في القائمة، وبما أنها غير موجودة ترجع القيمة 0 بدون إحداث أي خطأ.", "exp_en": "The count('clara') method returns how many times 'clara' appears in the list; since it is absent, it returns 0."}, {"id": 30, "unit": "القوائم | Lists", "topic": "دمج القوائم | extend() & +=", "ar_q": "ما هو ناتج دمج القائمتين التاليتين باستخدام الدالة extend() أو المعامل += ؟", "en_q": "What is the result of merging the two lists below using extend() or the += operator?", "code": "students1 = ['ali', 'omar']\nstudents2 = ['ramez', 'clara']\nstudents1.extend(students2)\nprint(students1)", "options": [{"ar": "تصبح القائمة الأولى ['ali', 'omar', 'ramez', 'clara']", "en": "The first list becomes ['ali', 'omar', 'ramez', 'clara']"}, {"ar": "تُحذف عناصر القائمة الأولى وتبقى ['ramez', 'clara']", "en": "The first list items are replaced, leaving ['ramez', 'clara']"}, {"ar": "يحدث خطأ TypeError لعدم إمكانية دمج قائمتين نصيتين", "en": "Raises a TypeError because two string lists cannot be merged"}, {"ar": "يتم دمج كل عنصرين متقابلين في نص واحد ['aliramez', 'omarclara']", "en": "Merges corresponding pairs into ['aliramez', 'omarclara']"}], "correct": 0, "exp_ar": "كل من extend() والمعامل += يقومان بإضافة جميع عناصر القائمة الثانية students2 إلى نهاية القائمة الأولى students1.", "exp_en": "Both extend() and += append all elements of students2 to the end of students1."}, {"id": 31, "unit": "الصفوف | Tuples", "topic": "خصائص الـ Tuple | Tuple Immutability", "ar_q": "ماذا يحدث عند تنفيذ السطر الأول ثم السطر الثاني على الـ Tuple الموضح في الكود؟", "en_q": "What happens when executing the first statement followed by the second statement on the tuple below?", "code": "students = ('clara', 'omar', 'ahmed')\nprint(students[2])        # السطر الأول\nstudents[1] = 'clara'     # السطر الثاني", "options": [{"ar": "السطر الأول يطبع 'omar'، والسطر الثاني يحذف العنصر الأخير من الـ Tuple", "en": "Line 1 prints 'omar', and Line 2 deletes the last element from the tuple"}, {"ar": "السطر الأول يطبع 'ahmed'، والسطر الثاني يستبدل 'omar' بالقيمة 'clara' بنجاح", "en": "Line 1 prints 'ahmed', and Line 2 successfully replaces 'omar' with 'clara'"}, {"ar": "كلا السطرين يعطيان خطأ برمجياً لأن الـ Tuple لا يدعم الفهرسة بالأقواس المربعة نهائياً", "en": "Both lines raise an error because tuples do not support square-bracket indexing"}, {"ar": "الأول يطبع 'ahmed'، والثاني يعطي خطأ TypeError لأن الـ Tuple لا يقبل التعديل", "en": "Line 1 prints 'ahmed', and Line 2 raises a TypeError (immutable tuple)"}], "correct": 3, "exp_ar": "الـ Tuple يُعرف بالأقواس الدائرية () ويدعم الفهرسة بشكل طبيعي فـ students[2] تطبع 'ahmed'، لكنه غير قابل للتعديل (Immutable) فلا يمكن تغيير عناصره.", "exp_en": "Tuples support indexing (students[2] is 'ahmed'), but they are immutable, so assigning students[1] = 'clara' raises a TypeError."}, {"id": 32, "unit": "الجمل الشرطية | Conditionals", "topic": "قاعدة if و else | if / else & Indentation", "ar_q": "ما هو ناتج الكود التالي، وما حكم المسافة البادئة (Indentation) قبل أوامر الطباعة؟", "en_q": "What is the output of the code below, and what is the rule regarding indentation before print()?", "code": "x = 5\nif x == 3:\n    print('Yes')\nelse:\n    print('no')", "options": [{"ar": "يطبع Yes و no معاً في نفس السطر، والمسافة البادئة تُوضع لتنسيق شكل الكود فقط", "en": "Prints both Yes and no, and indentation is only for visual formatting"}, {"ar": "يطبع Yes لأن 5 أكبر من 3، والمسافة البادئة اختيارية في لغة بايثون", "en": "Prints Yes because 5 > 3, and indentation is optional in Python"}, {"ar": "يطبع no لعدم تحقق الشرط، والمسافة البادئة إلزامية لتحديد الكود التابع للشرط", "en": "Prints no as the condition is False, and indentation is mandatory for blocks"}, {"ar": "يعدل قيمة x إلى 3 ويطبع Yes، والمسافة البادئة مطلوبة مع جملة else فقط", "en": "Changes x to 3 and prints Yes, and indentation is only required for else"}], "correct": 2, "exp_ar": "بما أن x تساوي 5 فإن الشرط x == 3 غير صحيح (False)، فينتقل التنفيذ إلى جملة else ويطبع 'no'. والمسافة البادئة (Indentation) إلزامية وإلا سيحدث IndentationError.", "exp_en": "Since x is 5, x == 3 evaluates to False, executing the else block ('no'). Proper indentation is strictly required in Python."}, {"id": 33, "unit": "الجمل الشرطية | Conditionals", "topic": "عدم المساواة والنفي | != and not", "ar_q": "ما هو ناتج تنفيذ الجملتين الشرطيتين التاليتين عندما تكون قيمة المتغير x تساوي 5؟", "en_q": "What is the output of executing the two conditional statements below when x equals 5?", "code": "x = 5\nif x != 3:\n    print('Yes')\nif not x == 3:\n    print('Yes')", "options": [{"ar": "كلتا الجملتين لا يتحقق شرطهما ولا يتم طباعة أي شيء على الشاشة", "en": "Both conditions evaluate to False and nothing is printed on screen"}, {"ar": "كلتا الجملتين يتحقق شرطهما ويتم طباعة كلمة Yes في الحالتين", "en": "Both conditions evaluate to True and 'Yes' is printed in both cases"}, {"ar": "الجملة الأولى تطبع Yes بينما الثانية تتوقف بسبب خطأ SyntaxError", "en": "The first prints 'Yes' while the second stops due to a SyntaxError"}, {"ar": "الجملة الأولى تطبع Yes بينما الثانية تعتبر الشرط خاطئاً وتتجاوزه", "en": "The first prints 'Yes' while the second treats the condition as False"}], "correct": 1, "exp_ar": "المعامل != يعني (لا يساوي)، و not x == 3 تنفي مساواة x لـ 3، وبما أن x = 5 فإن الشرطين صحيحان ويطبعان 'Yes'.", "exp_en": "Both x != 3 and not x == 3 check that x is not equal to 3; since x is 5, both evaluate to True and print 'Yes'."}, {"id": 34, "unit": "الجمل الشرطية | Conditionals", "topic": "الفرق بين elif وتكرار if | elif vs multiple if", "ar_q": "ما الفرق في المخرجات بين الكود الأول (باستخدام elif) والكود الثاني (باستخدام if منفصلة)؟", "en_q": "What is the difference in output between Code 1 (using elif) and Code 2 (using separate if)?", "code": "x = 7\n# الكود الأول (Code 1):\nif x == 7:\n    print('Hi')\nelif x == 7:\n    print('no')\n\n# الكود الثاني (Code 2):\nif x == 7:\n    print('Hi')\nif x == 7:\n    print('no')", "options": [{"ar": "الكود الأول يطبع 'Hi' فقط، بينما الكود الثاني يطبع 'Hi' ثم يطبع 'no'", "en": "Code 1 prints 'Hi' only, while Code 2 prints 'Hi' then 'no'"}, {"ar": "الكود الأول والكود الثاني يطبعان الكلمتين 'Hi' و 'no' بنفس الطريقة", "en": "Both Code 1 and Code 2 print both 'Hi' and 'no' in the exact same way"}, {"ar": "الكود الأول يطبع 'no' فقط، بينما الكود الثاني يطبع 'Hi' فقط", "en": "Code 1 prints 'no' only, whereas Code 2 prints 'Hi' only"}, {"ar": "الكود الأول يطبع 'Hi' ثم 'no'، بينما الكود الثاني يطبع 'Hi' فقط", "en": "Code 1 prints 'Hi' then 'no', whereas Code 2 prints 'Hi' only"}], "correct": 0, "exp_ar": "عند استخدام elif يتم تنفيذ أول شرط يتحقق فقط وتجاهل باقي الشروط، أما عند كتابة جمل if منفصلة فيتم فحص وتنفيذ كل جملة if يتحقق شرطها بشكل مستقل.", "exp_en": "In an if/elif chain, only the first matching branch runs; with separate if statements, every matching if block executes independently."}, {"id": 35, "unit": "الجمل الشرطية | Conditionals", "topic": "المعاملات المنطقية | and / or", "ar_q": "ما هي المخرجات التي يطبعها الكود التالي للجملة الشرطية الأولى والجملة الشرطية الثانية؟", "en_q": "What outputs are printed by the first and second conditional blocks in the code below?", "code": "a = 5\nb = 9\n\n# الجملة الأولى (1):\nif a == 5 and b == 7:\n    print('yes')\nelse:\n    print('no')\n\n# الجملة الثانية (2):\nif a == 2 or b == 7:\n    print('yes')\nelse:\n    print('no')", "options": [{"ar": "الجملة الأولى تطبع no، والجملة الثانية تطبع yes", "en": "The first block prints no, and the second block prints yes"}, {"ar": "الجملة الأولى تطبع yes، والجملة الثانية تطبع yes", "en": "The first block prints yes, and the second block prints yes"}, {"ar": "الجملة الأولى تطبع yes، والجملة الثانية تطبع no", "en": "The first block prints yes, and the second block prints no"}, {"ar": "الجملة الأولى تطبع no، والجملة الثانية تطبع no", "en": "The first block prints no, and the second block prints no"}], "correct": 3, "exp_ar": "في الجملة الأولى (a == 5 صحيحة لكن b == 7 خاطئة) ومع and يجب أن يكون الطرفان صحيحين فيطبع no. وفي الثانية الطرفان خاطئان (a ليست 2 و b ليست 7) فيطبع no أيضاً.", "exp_en": "With 'and', both sides must be True (b == 7 is False, so 'no'). With 'or', at least one side must be True (both are False, so 'no')."}, {"id": 36, "unit": "الجمل الشرطية | Conditionals", "topic": "معامل الاحتواء | in Operator", "ar_q": "ما هو ناتج تنفيذ الكود الأول (على النص) والكود الثاني (على القائمة) باستخدام المعامل in؟", "en_q": "What is the output of Code 1 (on a string) and Code 2 (on a list) using the 'in' operator?", "code": "# الكود الأول (Code 1):\nname = 'omar'\nif 'am' in name:\n    print('yes')\nelse:\n    print('no')\n\n# الكود الثاني (Code 2):\nstudents = ['ali', 'omar', 'ahmed']\nif 'omar' in students:\n    print('yes')\nelse:\n    print('no')", "options": [{"ar": "الكود الأول يطبع no، والكود الثاني يطبع no", "en": "Code 1 prints no, and Code 2 prints no"}, {"ar": "الكود الأول يطبع yes، والكود الثاني يطبع yes", "en": "Code 1 prints yes, and Code 2 prints yes"}, {"ar": "الكود الأول يطبع no، والكود الثاني يطبع yes", "en": "Code 1 prints no, and Code 2 prints yes"}, {"ar": "الكود الأول يطبع yes، والكود الثاني يطبع no", "en": "Code 1 prints yes, and Code 2 prints no"}], "correct": 2, "exp_ar": "المعامل in يفحص وجود النص الفرعي أو العنصر؛ كلمة 'omar' تحتوي على 'om' و 'ma' و 'ar' ولا تحتوي على 'am' متتالية فيطبع no، بينما 'omar' عنصر موجود في قائمة students فيطبع yes.", "exp_en": "The 'in' operator checks membership: 'am' is not a substring of 'omar' ('no'), while 'omar' is an element of students ('yes')."}, {"id": 37, "unit": "العمليات الحسابية | Arithmetic Operators", "topic": "القسمة وباقي القسمة | %, /, //", "ar_q": "ما هي نواتج العمليات الحسابية الثلاث التالية في بايثون على الترتيب؟", "en_q": "What are the outputs of the following three arithmetic operations in Python in order?", "code": "print(5 % 2)\nprint(5 / 2)\nprint(5 // 2)", "options": [{"ar": "الأولى 2.5 ، والثانية 2 ، والثالثة 1", "en": "First is 2.5, second is 2, and third is 1"}, {"ar": "الأولى 1 ، والثانية 2.5 ، والثالثة 2", "en": "First is 1, second is 2.5, and third is 2"}, {"ar": "الأولى 0 ، والثانية 2.5 ، والثالثة 2.5", "en": "First is 0, second is 2.5, and third is 2.5"}, {"ar": "الأولى 1 ، والثانية 2 ، والثالثة 2.5", "en": "First is 1, second is 2, and third is 2.5"}], "correct": 1, "exp_ar": "العلامة % تحسب باقي القسمة (5 % 2 = 1)، والعلامة / تحسب القسمة العادية بالكسور (5 / 2 = 2.5)، والعلامة // تحسب القسمة الصحيحة بدون كسور (5 // 2 = 2).", "exp_en": "% is the modulo operator returning the remainder (1), / performs float division (2.5), and // performs floor/integer division (2)."}, {"id": 38, "unit": "الجمل الشرطية | Conditionals", "topic": "الأعداد الزوجية والفردية | Even & Odd Numbers", "ar_q": "ما هو الناتج الذي يطبعه الكود التالي لفحص العدد 8، وما السبب الحسابي لذلك؟", "en_q": "What output is printed by the following code when checking the number 8, and why?", "code": "number = 8\nif number % 2 == 0:\n    print(f'{number} is even')\nelse:\n    print(f'{number} is odd')", "options": [{"ar": "يطبع 8 is even لأن باقي قسمة العدد 8 على 2 يساوي صفراً", "en": "Prints 8 is even because dividing 8 by 2 leaves remainder 0"}, {"ar": "يطبع 8 is odd لأن ناتج قسمة العدد 8 على 2 يساوي العدد 4", "en": "Prints 8 is odd because the quotient of dividing 8 by 2 equals 4"}, {"ar": "يطبع {number} is even لأن الأقواس المعكوفة تمنع تعويض المتغير", "en": "Prints {number} is even because curly braces prevent substitution"}, {"ar": "يطبع 4 is even لأنه يقسم قيمة المتغير على 2 قبل طباعتها", "en": "Prints 4 is even because it divides the variable by 2 before printing"}], "correct": 0, "exp_ar": "أي عدد باقي قسمته على 2 يساوي صفراً (number % 2 == 0) هو عدد زوجي (even)، ولذلك 8 % 2 تساوي 0 فيطبع 8 is even.", "exp_en": "Since 8 % 2 equals 0, the condition is True and the f-string outputs '8 is even'."}, {"id": 39, "unit": "الجمل الشرطية | Conditionals", "topic": "معاملات المقارنة | Comparison Operators", "ar_q": "ما هو ناتج تنفيذ الكود الشرطي التالي عندما تتساوى قيمتا المتغيرين a و b؟", "en_q": "What is the output of executing the conditional code below when variables a and b are equal?", "code": "a = 9\nb = 9\nif a >= b:\n    print('yes')\nelse:\n    print('no')", "options": [{"ar": "يعطي خطأ SyntaxError لكتابة علامتي مقارنة متتاليتين", "en": "Raises a SyntaxError due to writing two comparison symbols"}, {"ar": "يطبع no لأن المتغير a ليس أكبر من المتغير b", "en": "Prints no because variable a is not strictly greater than b"}, {"ar": "يطبع القيمة الرقمية 9 المشتركة بين المتغيرين", "en": "Prints the numeric value 9 shared by both variables"}, {"ar": "يطبع yes لأن المعامل يشمل حالة المساواة بين الطرفين", "en": "Prints yes because the operator includes equality"}], "correct": 3, "exp_ar": "المعامل >= يعني (أكبر من أو يساوي)، وبما أن 9 تساوي 9 فإن الشرط يتحقق ويطبع 'yes'.", "exp_en": "The >= operator checks if 'a' is greater than or equal to 'b'; since 9 equals 9, it evaluates to True and prints 'yes'."}, {"id": 40, "unit": "الحلقات التكرارية | Loops", "topic": "حلقة while اللانهائية | Infinite while Loop", "ar_q": "ماذا يحدث عند تشغيل أي من الحلقتين التكراريتين الموضحتين في الكود التالي؟", "en_q": "What happens when running either of the two while loops shown in the code below?", "code": "# الحلقة الأولى:\nwhile True:\n    print('hello')\n\n# الحلقة الثانية:\nwhile 5 > 3:\n    print('hello')", "options": [{"ar": "تطبع كلمة hello خمس مرات متتالية بناءً على الرقم الأكبر في الشرط ثم تتوقف", "en": "Prints 'hello' five times in a row based on the larger number in the condition"}, {"ar": "تطبع كلمة hello مرة واحدة فقط عند بداية التشغيل ثم تخرج من الحلقة", "en": "Prints 'hello' only once at the start of execution and exits the loop"}, {"ar": "يدخل البرنامج في حلقة لا نهائية ويستمر في طباعة hello بلا توقف", "en": "Enters an infinite loop continuously printing 'hello' non-stop"}, {"ar": "يتجاهل المفسر الحلقتين ولا يطبع أي مخرجات لعدم وجود متغير عداد بداخلهما", "en": "The interpreter skips both loops and prints nothing due to lacking a counter"}], "correct": 2, "exp_ar": "بما أن الشرط True وكذلك الشرط (5 > 3) يظلان صحيحين دائماً ولا يتغيران، تستمر حلقة while في الدوران إلى ما لا نهاية (Infinite Loop).", "exp_en": "Because True and 5 > 3 always evaluate to True, the while loop runs indefinitely."}, {"id": 41, "unit": "الحلقات التكرارية | Loops", "topic": "حلقة while مع العداد | while Loop Counter", "ar_q": "ما هي الأرقام التي ستتم طباعتها بالترتيب عند تنفيذ حلقة while التالية؟", "en_q": "Which numbers will be printed in order when executing the following while loop?", "code": "x = 0\nwhile x < 10:\n    x += 1\n    print(x)", "options": [{"ar": "يطبع الأرقام من 0 إلى 9 (أول رقم 0 وآخر رقم 9)", "en": "Prints numbers from 0 to 9 (first is 0 and last is 9)"}, {"ar": "يطبع الأرقام من 1 إلى 10 (أول رقم 1 وآخر رقم 10)", "en": "Prints numbers from 1 to 10 (first is 1 and last is 10)"}, {"ar": "يطبع الأرقام من 1 إلى 9 (أول رقم 1 وآخر رقم 9)", "en": "Prints numbers from 1 to 9 (first is 1 and last is 9)"}, {"ar": "يطبع الأرقام من 0 إلى 10 (أول رقم 0 وآخر رقم 10)", "en": "Prints numbers from 0 to 10 (first is 0 and last is 10)"}], "correct": 1, "exp_ar": "يبدأ x من 0، وفي كل دورة يزداد بمقدار 1 أولاً (x += 1) ثم يُطبع، ففي أول دورة يصبح 1 ويُطبع، وفي آخر دورة (عندما يدخل x=9) يصبح 10 ويُطبع ثم تنتهي الحلقة.", "exp_en": "Since x is incremented (x += 1) before print(x), the first printed value is 1 and the last printed value (when x enters as 9) is 10."}, {"id": 42, "unit": "الحلقات التكرارية | Loops", "topic": "الأمر continue في while | continue Statement", "ar_q": "ما هو تأثير وجود الأمر continue داخل حلقة while في الكود التالي؟", "en_q": "What is the effect of the continue statement inside the while loop in the code below?", "code": "x = 0\nwhile x < 10:\n    x += 1\n    if x == 5 or x == 8:\n        continue\n    print(x)", "options": [{"ar": "يطبع الأرقام من 1 إلى 10 مع تخطي طباعة الرقمين 5 و 8 فقط", "en": "Prints numbers from 1 to 10 while skipping only 5 and 8"}, {"ar": "يتجاهل جميع الأرقام في الحلقة ويطبع الرقمين 5 و 8 فقط", "en": "Ignores all other numbers in the loop and prints only 5 and 8"}, {"ar": "يطبع الأرقام من 1 إلى 4 ثم ينهي الحلقة تماماً عند وصول x إلى 5", "en": "Prints numbers 1 to 4 and terminates the loop completely when x reaches 5"}, {"ar": "يطبع الأرقام من 5 إلى 8 فقط ويتجاهل ما قبلها وما بعدها", "en": "Prints only the numbers from 5 to 8 and ignores everything else"}], "correct": 0, "exp_ar": "الأمر continue يقوم بتخطي الدورة الحالية فقط عندما تكون x تساوي 5 أو 8 فلا ينفذ print(x) لهما، ويكمل باقي الدورات حتى 10.", "exp_en": "The continue statement skips the rest of the current iteration when x is 5 or 8, printing all other numbers from 1 to 10."}, {"id": 43, "unit": "الحلقات التكرارية | Loops", "topic": "الأمر break و else مع الحلقات | break & Loop else", "ar_q": "ماذا سيُطبع على الشاشة عند تنفيذ الكود التالي المحتوي على break وجملة else التابعة للحلقة؟", "en_q": "What will be printed when executing the code below containing break and a loop else block?", "code": "x = 0\nwhile x < 10:\n    x += 1\n    if x == 5:\n        break\n    print(x)\nelse:\n    print('the end')", "options": [{"ar": "تُطبع الأرقام من 1 إلى 4 ثم تُطبع جملة 'the end' في النهاية", "en": "Prints numbers 1 to 4 and then prints 'the end' at the end"}, {"ar": "تُطبع الأرقام من 1 إلى 5 ثم تُطبع جملة 'the end' في النهاية", "en": "Prints numbers 1 to 5 and then prints 'the end' at the end"}, {"ar": "تُطبع الأرقام من 1 إلى 5 فقط ولا تُطبع جملة 'the end' بسبب break", "en": "Prints numbers 1 to 5 only and skips 'the end' due to break"}, {"ar": "تُطبع الأرقام من 1 إلى 4 فقط ولا تُطبع جملة 'the end' بسبب break", "en": "Prints numbers 1 to 4 only and skips 'the end' due to break"}], "correct": 3, "exp_ar": "عندما تصل x إلى 5 ينفذ الأمر break الذي ينهي الحلقة فوراً قبل طباعة 5، كما أن جملة else التابعة للحلقة لا تتنفذ أبداً إذا خرجت الحلقة بواسطة break.", "exp_en": "When x reaches 5, break exits the loop immediately (so only 1, 2, 3, 4 are printed), and the loop's else block is skipped when terminated by break."}, {"id": 44, "unit": "الحلقات التكرارية | Loops", "topic": "حلقة for مع النصوص والقوائم | for Loop Iteration", "ar_q": "ما الذي تقوم به كل من حلقة for الأولى (مع النص) وحلقة for الثانية (مع القائمة)؟", "en_q": "What do the first for loop (with a string) and the second for loop (with a list) do?", "code": "# الحلقة الأولى:\nfor x in 'omar':\n    print(x)\n\n# الحلقة الثانية:\nfor x in ['ali', 'omar', 'ahmed']:\n    print(x)", "options": [{"ar": "الأولى تعطي خطأ لأن for لا تعمل مع النصوص، والثانية تطبع القائمة كاملة في سطر", "en": "The first raises an error on strings, and the second prints the whole list at once"}, {"ar": "الأولى تطبع عدد حروف النص (4)، والثانية تطبع عدد عناصر القائمة (3)", "en": "The first prints the string length (4), and the second prints list length (3)"}, {"ar": "الأولى تطبع حروف 'omar' كل حرف في سطر، والثانية تطبع كل اسم في سطر", "en": "The first prints each letter per line, and the second prints each name per line"}, {"ar": "الأولى تطبع الحرف الأول 'o' فقط، والثانية تطبع الاسم الأول 'ali' فقط", "en": "The first prints only the first letter 'o', and the second prints only 'ali'"}], "correct": 2, "exp_ar": "حلقة for عند استخدامها مع نص تمر على كل حرف فيه بالترتيب، وعند استخدامها مع قائمة تمر على كل عنصر فيها بالترتيب.", "exp_en": "Iterating over a string with a for loop yields each character one by one, and iterating over a list yields each element in order."}, {"id": 45, "unit": "الحلقات التكرارية | Loops", "topic": "دالة range() مع for | range() in for Loops", "ar_q": "ما هي القيم التي ستتم طباعتها عند تنفيذ حلقة for التالية مع دالة range(1, 11)؟", "en_q": "What values will be printed when executing the following for loop with range(1, 11)?", "code": "for x in range(1, 11):\n    print(x)\nelse:\n    print('The End')", "options": [{"ar": "يطبع الأرقام من 1 إلى 11، ولا يطبع جملة 'The End' في النهاية", "en": "Prints numbers from 1 to 11, and does not print 'The End'"}, {"ar": "يطبع الأرقام من 1 إلى 10، ثم يطبع جملة 'The End' بعد انتهاء الحلقة", "en": "Prints numbers from 1 to 10, then prints 'The End' after the loop"}, {"ar": "يطبع الأرقام من 0 إلى 10، ولا يطبع جملة 'The End' في النهاية", "en": "Prints numbers from 0 to 10, and does not print 'The End'"}, {"ar": "يطبع الأرقام من 1 إلى 11، ثم يطبع جملة 'The End' بعد انتهاء الحلقة", "en": "Prints numbers from 1 to 11, then prints 'The End' after the loop"}], "correct": 1, "exp_ar": "الدالة range(1, 11) تولد الأرقام من 1 إلى 10 (لأن رقم النهاية 11 غير مشمول)، وبما أن الحلقة اكتملت للنهاية بدون break تتنفذ جملة else وتطبع 'The End'.", "exp_en": "range(1, 11) generates numbers 1 through 10 (11 is exclusive), and since the loop completes normally without a break, the else block prints 'The End'."}, {"id": 46, "unit": "الحلقات التكرارية | Loops", "topic": "تكرار عدد محدد من المرات | Repeating with range(15)", "ar_q": "كم مرة ستتم طباعة كلمة 'hello' في كل من الكود الأول والكود الثاني؟", "en_q": "How many times will 'hello' be printed in Code 1 and Code 2 respectively?", "code": "# الكود الأول (Code 1):\nfor x in range(15):\n    print('hello')\n\n# الكود الثاني (Code 2):\nx = 0\nwhile x < 15:\n    x += 1\n    print('hello')", "options": [{"ar": "تُطبع 15 مرة في الكود الأول، و 15 مرة في الكود الثاني", "en": "Printed 15 times in Code 1, and 15 times in Code 2"}, {"ar": "تُطبع 14 مرة في الكود الأول، و 14 مرة في الكود الثاني", "en": "Printed 14 times in Code 1, and 14 times in Code 2"}, {"ar": "تُطبع 14 مرة في الكود الأول، و 15 مرة في الكود الثاني", "en": "Printed 14 times in Code 1, and 15 times in Code 2"}, {"ar": "تُطبع 15 مرة في الكود الأول، و 16 مرة في الكود الثاني", "en": "Printed 15 times in Code 1, and 16 times in Code 2"}], "correct": 0, "exp_ar": "range(15) تولد 15 رقماً (من 0 إلى 14) فتطبع 'hello' عدد 15 مرة، وكذلك حلقة while التي تبدأ من 0 وتزيد بمقدار 1 طالما x < 15 تتكرر 15 مرة.", "exp_en": "range(15) runs 15 times (0 through 14), and the while loop starting at x = 0 while x < 15 with x += 1 also runs 15 times."}, {"id": 47, "unit": "الدوال | Functions", "topic": "تعريف الدوال والأمر return | def & return", "ar_q": "ماذا يحدث عند تعريف الدالة التالية ثم استدعائها بالسطر print(number())؟", "en_q": "What happens when defining the function below and calling it via print(number())?", "code": "def number():\n    return 5\n    print('hello')\n\nprint(number())", "options": [{"ar": "يحدث خطأ SyntaxError لوجود أمر طباعة مكتوب بعد جملة return", "en": "Raises a SyntaxError because a print statement appears after return"}, {"ar": "يطبع القيمة 5 أولاً ثم يطبع كلمة 'hello' في السطر الذي يليها", "en": "Prints the value 5 first and then prints 'hello' on the next line"}, {"ar": "يطبع كلمة 'hello' أولاً ثم يرجع القيمة 5 ليتم طباعتها على الشاشة", "en": "Prints 'hello' first and then returns the value 5 to be printed"}, {"ar": "يطبع القيمة 5 فقط لأن جملة return تنهي تنفيذ الدالة فوراً", "en": "Prints the value 5 only because return immediately exits the function"}], "correct": 3, "exp_ar": "الأمر return يقوم بإرجاع القيمة 5 والخروج الفوري من الدالة، لذلك أي سطر برمجي يُكتب داخل الدالة بعد return لن يتم تنفيذه أبداً.", "exp_en": "The return statement immediately terminates function execution and sends back the value 5, making any code after it inside the function unreachable."}, {"id": 48, "unit": "الدوال | Functions", "topic": "المعاملات في الدوال | Function Parameters", "ar_q": "ما هو الناتج الذي يطبع على الشاشة عند استدعاء الدالة add(a, b) في الكود التالي؟", "en_q": "What output is printed on the screen when calling the add(a, b) function below?", "code": "def add(a, b):\n    return a + b\n\nprint(add(3, 5))", "options": [{"ar": "يطبع النص الحرفي a + b كما هو", "en": "Prints the literal text a + b as is"}, {"ar": "يدمج الرقمين معاً ويطبع 35", "en": "Concatenates the two digits and prints 35"}, {"ar": "يجمع الرقمين حسابياً ويطبع 8", "en": "Adds the two numbers arithmetically and prints 8"}, {"ar": "يطبع القيمة الفارغة None", "en": "Prints the empty value None"}], "correct": 2, "exp_ar": "تستقبل الدالة add المعاملين a=3 و b=5 وتعيد مجموعهما الحسابي (3 + 5 = 8)، ثم تقوم print بطباعة الناتج 8.", "exp_en": "The function add(a, b) receives 3 and 5, returns their sum (8), which is then printed."}, {"id": 49, "unit": "القواميس | Dictionaries", "topic": "الوصول لعناصر القاموس | Accessing Dictionary Values", "ar_q": "ما هي المخرجات الثلاثة التي تطبعها أوامر print() على القاموس التالي بالترتيب؟", "en_q": "What are the three outputs printed by the print() statements on the dictionary below in order?", "code": "students = {'ali': 95, 'omar': 90, 'ahmed': 93}\nprint(len(students))\nprint(students['ali'])\nprint(students.get('ahmed'))", "options": [{"ar": "تطبع 6 ، ثم تطبع 'ali' ، ثم تطبع 2", "en": "Prints 6, then prints 'ali', then prints 2"}, {"ar": "تطبع 3 ، ثم تطبع 95 ، ثم تطبع 93", "en": "Prints 3, then prints 95, then prints 93"}, {"ar": "تطبع 3 ، ثم تطبع 90 ، ثم تطبع None", "en": "Prints 3, then prints 90, then prints None"}, {"ar": "تطبع 3 ، ثم تطبع 90 ، ثم تطبع 95", "en": "Prints 3, then prints 90, then prints 95"}], "correct": 1, "exp_ar": "يتكون القاموس من 3 أزواج (مفتاح : قيمة) فيكون طوله 3، ونصل لقيمة المفتاح إما بـ students['ali'] (فتعطي 95) أو بالدالة students.get('ahmed') (فتعطي 93).", "exp_en": "The dictionary has 3 key-value pairs (len is 3); students['ali'] retrieves 95, and students.get('ahmed') retrieves 93."}, {"id": 50, "unit": "القواميس | Dictionaries", "topic": "الإضافة والحذف في القاموس | Adding & Popping in Dicts", "ar_q": "ما هو التغيير الذي يطرأ على القاموس students بعد تنفيذ السطرين الثاني والثالث؟", "en_q": "What change occurs to the students dictionary after executing the second and third lines?", "code": "students = {'ali': 95, 'omar': 90, 'ahmed': 93}\nstudents['yassin'] = 97\nstudents.pop('ali')", "options": [{"ar": "يُضاف الزوج ('yassin': 97) للقاموس، ويُحذف المفتاح 'ali' وقيمته 95 منه", "en": "Adds the pair ('yassin': 97) to the dictionary, and removes 'ali': 95"}, {"ar": "يُحذف القاموس القديم بالكامل، ويتم إنشاء قاموس جديد يحتوي على 'ali' فقط", "en": "Deletes the old dictionary completely, and creates a new one with 'ali' only"}, {"ar": "تتغير درجة 'ali' إلى 97، ويُحذف آخر عنصر ('ahmed': 93) من القاموس", "en": "Updates 'ali's score to 97, and removes the last item ('ahmed': 93) from it"}, {"ar": "يظهر خطأ KeyError عند محاولة إضافة المفتاح الجديد 'yassin' للقاموس", "en": "Raises a KeyError when attempting to assign the new key 'yassin' to the dict"}], "correct": 0, "exp_ar": "كتابة students['yassin'] = 97 تضيف مفتاحاً جديداً باسم 'yassin' وقيمته 97، بينما students.pop('ali') تحذف المفتاح 'ali' وقيمته من القاموس.", "exp_en": "Assigning students['yassin'] = 97 inserts a new key-value pair, and students.pop('ali') removes the 'ali' entry from the dictionary."}];
+        const STORAGE_KEY = 'python_basics_50q_organized_v2';
+
+        // Exam State
+        let examState = {
+            currentIdx: 0,
+            answers: new Array(50).fill(null),
+            completed: false,
+            finishedAt: null
+        };
+
+        let pendingSelection = null;
+        let currentReviewFilter = 'wrong';
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function loadSavedState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.answers) && parsed.answers.length === 50) {
+                        examState.currentIdx = typeof parsed.currentIdx === 'number' ? parsed.currentIdx : 0;
+                        examState.answers = parsed.answers;
+                        examState.completed = Boolean(parsed.completed);
+                        examState.finishedAt = parsed.finishedAt || null;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(examState));
+            } catch (e) {}
+        }
+
+        function resetExamState() {
+            examState = {
+                currentIdx: 0,
+                answers: new Array(50).fill(null),
+                completed: false,
+                finishedAt: null
+            };
+            pendingSelection = null;
+            saveState();
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderApp() {
+            if (examState.completed || examState.currentIdx >= QUESTIONS.length) {
+                examState.completed = true;
+                if (!examState.finishedAt) {
+                    examState.finishedAt = new Date().toLocaleString('ar-EG');
+                    saveState();
+                }
+                showLockedFinalResults();
+            } else {
+                renderActiveQuestion();
+            }
+        }
+
+        function renderActiveQuestion() {
+            document.getElementById('examActiveView').classList.remove('hidden');
+            document.getElementById('examFinishedView').classList.add('hidden');
+
+            while (examState.currentIdx < QUESTIONS.length && examState.answers[examState.currentIdx] !== null) {
+                examState.currentIdx++;
+            }
+            if (examState.currentIdx >= QUESTIONS.length) {
+                examState.completed = true;
+                examState.finishedAt = new Date().toLocaleString('ar-EG');
+                saveState();
+                showLockedFinalResults();
+                return;
+            }
+            saveState();
+
+            const idx = examState.currentIdx;
+            const q = QUESTIONS[idx];
+            pendingSelection = null;
+
+            const answeredSoFar = examState.answers.filter(a => a !== null).length;
+            document.getElementById('currentQNum').textContent = (idx + 1);
+            document.getElementById('currentUnitBadge').textContent = q.unit;
+            document.getElementById('completedCount').textContent = answeredSoFar;
+            document.getElementById('remainingCount').textContent = (QUESTIONS.length - answeredSoFar);
+
+            const pct = Math.max(2, Math.round((answeredSoFar / QUESTIONS.length) * 100));
+            document.getElementById('progressBarFill').style.width = pct + '%';
+
+            document.getElementById('qNumberBadge').textContent = `سؤال #${idx + 1}`;
+            document.getElementById('topicTag').textContent = q.unit + ' — ' + q.topic;
+            document.getElementById('lockIndicator').textContent = 'اختر الإجابة الصحيحة ثم اضغط تأكيد';
+            document.getElementById('qTextAr').textContent = q.ar_q;
+            document.getElementById('qTextEn').textContent = q.en_q;
+
+            // Render isolated code block if question has code
+            const codeWrapper = document.getElementById('codeBlockWrapper');
+            const codeContent = document.getElementById('qCodeContent');
+            if (q.code && q.code.trim().length > 0) {
+                codeWrapper.classList.remove('hidden');
+                codeContent.textContent = q.code;
+            } else {
+                codeWrapper.classList.add('hidden');
+                codeContent.textContent = '';
+            }
+
+            const feedbackBox = document.getElementById('feedbackBox');
+            feedbackBox.classList.add('hidden');
+            feedbackBox.innerHTML = '';
+
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+
+            const arLetters = ['أ', 'ب', 'ج', 'د'];
+            const enLetters = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'opt-card w-full text-right p-4 rounded-xl border-2 border-slate-200 bg-slate-50/70 flex items-start gap-3.5 cursor-pointer';
+                btn.innerHTML = `
+                    <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-blue-900/10 border border-blue-900/20 text-blue-950 font-black flex items-center justify-center text-sm mt-0.5">
+                        ${arLetters[optIdx]}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-slate-900 text-base sm:text-lg leading-snug mb-1">${escapeHtml(opt.ar)}</div>
+                        <div class="en-text text-xs sm:text-sm font-semibold text-slate-500 leading-snug">${enLetters[optIdx]}) ${escapeHtml(opt.en)}</div>
+                    </div>
+                `;
+                btn.addEventListener('click', () => {
+                    pendingSelection = optIdx;
+                    Array.from(optionsList.children).forEach((child, cIdx) => {
+                        if (cIdx === optIdx) {
+                            child.classList.add('selected-choice');
+                        } else {
+                            child.classList.remove('selected-choice');
+                        }
+                    });
+                    const confirmBtn = document.getElementById('confirmNextBtn');
+                    confirmBtn.disabled = false;
+                });
+                optionsList.appendChild(btn);
+            });
+
+            const confirmBtn = document.getElementById('confirmNextBtn');
+            confirmBtn.disabled = true;
+            const confirmLabel = document.getElementById('confirmBtnLabel');
+            if (idx === QUESTIONS.length - 1) {
+                confirmLabel.textContent = 'تأكيد الإجابة وإنهاء الاختبار 🏁';
+            } else {
+                confirmLabel.textContent = 'تأكيد الإجابة والسؤال التالي ⬅️';
+            }
+        }
+
+        function handleConfirmAndAdvance() {
+            if (pendingSelection === null) return;
+            const idx = examState.currentIdx;
+            examState.answers[idx] = pendingSelection;
+            examState.currentIdx = idx + 1;
+
+            if (examState.currentIdx >= QUESTIONS.length) {
+                examState.completed = true;
+                examState.finishedAt = new Date().toLocaleString('ar-EG');
+            }
+
+            saveState();
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showLockedFinalResults() {
+            document.getElementById('examActiveView').classList.add('hidden');
+            document.getElementById('examFinishedView').classList.remove('hidden');
+
+            let correctCount = 0;
+            let wrongIndices = [];
+
+            QUESTIONS.forEach((q, i) => {
+                if (examState.answers[i] === q.correct) {
+                    correctCount++;
+                } else {
+                    wrongIndices.push(i + 1);
+                }
+            });
+
+            const wrongCount = QUESTIONS.length - correctCount;
+            document.getElementById('finalScoreValue').textContent = correctCount;
+            const pctScore = Math.round((correctCount / QUESTIONS.length) * 100);
+            document.getElementById('finalPercentage').textContent = `النسبة المئوية: ${pctScore}%`;
+            document.getElementById('finalCorrectCount').textContent = correctCount;
+            document.getElementById('finalWrongCount').textContent = wrongCount;
+            document.getElementById('resultTimestamp').textContent = examState.finishedAt
+                ? `تاريخ ووقت إنهاء الاختبار: ${examState.finishedAt}`
+                : '';
+
+            const trophy = document.getElementById('resultTrophy');
+            const title = document.getElementById('resultTitle');
+            if (correctCount >= 45) {
+                trophy.textContent = '👑';
+                title.textContent = 'مستوى ممتاز وفوق العادة! (Outstanding)';
+            } else if (correctCount >= 38) {
+                trophy.textContent = '🎉';
+                title.textContent = 'أداء جيد جداً! (Very Good)';
+            } else if (correctCount >= 25) {
+                trophy.textContent = '👍';
+                title.textContent = 'اجتزت الاختبار — راجع الأسئلة الخاطئة بالأسفل';
+            } else {
+                trophy.textContent = '📚';
+                title.textContent = 'يُنصح بمراجعة الأسئلة التي أخطأت فيها بتركيز';
+            }
+
+            const badgesBox = document.getElementById('wrongNumbersBadges');
+            const textLine = document.getElementById('WrongNumbersTextLine');
+            badgesBox.innerHTML = '';
+
+            if (wrongIndices.length === 0) {
+                badgesBox.innerHTML = `<span class="bg-emerald-100 text-emerald-800 font-black px-4 py-2 rounded-xl text-sm">🎉 ممتاز! لم تخطئ في أي سؤال على الإطلاق (50 / 50)!</span>`;
+                textLine.textContent = 'لا توجد أي أخطاء — أتممت جميع الـ 50 سؤال بشكل صحيح!';
+            } else {
+                wrongIndices.forEach(qNum => {
+                    const pill = document.createElement('button');
+                    pill.type = 'button';
+                    pill.className = 'bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm transition cursor-pointer';
+                    pill.textContent = `سؤال ${qNum}`;
+                    pill.addEventListener('click', () => {
+                        const targetCard = document.getElementById(`review-q-${qNum}`);
+                        if (targetCard) {
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            targetCard.classList.add('ring-4', 'ring-red-400');
+                            setTimeout(() => targetCard.classList.remove('ring-4', 'ring-red-400'), 1800);
+                        }
+                    });
+                    badgesBox.appendChild(pill);
+                });
+                textLine.textContent = 'أرقام الأسئلة الخاطئة بالترتيب (' + wrongIndices.length + ' سؤال): [ ' + wrongIndices.join(' ، ') + ' ]';
+            }
+
+            document.getElementById('wrongReviewCountLabel').textContent = wrongIndices.length;
+            renderDetailedReview();
+        }
+
+        function renderDetailedReview() {
+            const container = document.getElementById('detailedReviewContainer');
+            container.innerHTML = '';
+
+            const arLetters = ['أ', 'ب', 'ج', 'د'];
+            const enLetters = ['A', 'B', 'C', 'D'];
+
+            let shownCount = 0;
+            QUESTIONS.forEach((q, i) => {
+                const userAns = examState.answers[i];
+                const isCorrect = (userAns === q.correct);
+                if (currentReviewFilter === 'wrong' && isCorrect) return;
+                shownCount++;
+
+                const qNum = i + 1;
+                const card = document.createElement('div');
+                card.id = `review-q-${qNum}`;
+                card.className = `p-5 rounded-2xl border-2 transition ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-red-50/40 border-red-300'}`;
+
+                const userChoiceTextAr = userAns !== null ? `${arLetters[userAns]}) ${escapeHtml(q.options[userAns].ar)}` : 'لم يُجب';
+                const userChoiceTextEn = userAns !== null ? `${enLetters[userAns]}) ${escapeHtml(q.options[userAns].en)}` : 'No answer';
+                const correctChoiceTextAr = `${arLetters[q.correct]}) ${escapeHtml(q.options[q.correct].ar)}`;
+                const correctChoiceTextEn = `${enLetters[q.correct]}) ${escapeHtml(q.options[q.correct].en)}`;
+
+                const codeBlockHtml = (q.code && q.code.trim().length > 0) ? `
+                    <div class="my-3.5 rounded-xl overflow-hidden border border-slate-800 bg-slate-900 shadow-sm">
+                        <div class="bg-slate-800 px-3.5 py-1.5 flex items-center justify-between border-b border-slate-700" dir="ltr">
+                            <span class="text-[11px] font-bold text-slate-300 code-font">python_snippet.py</span>
+                            <span class="text-[10px] font-bold text-amber-300">Code</span>
+                        </div>
+                        <pre class="p-3.5 text-xs sm:text-sm text-emerald-300 code-font overflow-x-auto leading-relaxed m-0">${escapeHtml(q.code)}</pre>
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-200/80">
+                        <div class="flex items-center gap-2">
+                            <span class="${isCorrect ? 'bg-emerald-600' : 'bg-red-600'} text-white font-black text-xs sm:text-sm px-3 py-1 rounded-lg">
+                                سؤال رقم #${qNum}
+                            </span>
+                            <span class="text-xs font-bold text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
+                                ${escapeHtml(q.unit)} — ${escapeHtml(q.topic)}
+                            </span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-black ${isCorrect ? 'text-emerald-700' : 'text-red-700'}">
+                            ${isCorrect ? '✅ إجابتك صحيحة' : '❌ إجابتك كانت خاطئة'}
+                        </span>
+                    </div>
+
+                    <div class="font-extrabold text-slate-900 text-base sm:text-lg mb-1">${escapeHtml(q.ar_q)}</div>
+                    <div class="en-text text-xs sm:text-sm font-semibold text-slate-600 mb-3">${escapeHtml(q.en_q)}</div>
+
+                    ${codeBlockHtml}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm mb-3">
+                        <div class="p-3 rounded-xl border ${isCorrect ? 'bg-emerald-100/70 border-emerald-300 text-emerald-950' : 'bg-red-100/80 border-red-300 text-red-950'}">
+                            <div class="font-black mb-1">${isCorrect ? '✅ إجابتك المختارة:' : '❌ إجابتك التي اخترتها:'}</div>
+                            <div class="font-bold">${userChoiceTextAr}</div>
+                            <div class="en-text text-xs opacity-85 mt-0.5">${userChoiceTextEn}</div>
+                        </div>
+                        <div class="p-3 rounded-xl border bg-emerald-100/70 border-emerald-300 text-emerald-950">
+                            <div class="font-black mb-1">🎯 الإجابة الصحيحة النموذجية:</div>
+                            <div class="font-bold">${correctChoiceTextAr}</div>
+                            <div class="en-text text-xs opacity-85 mt-0.5">${correctChoiceTextEn}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/90 p-3.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                        <div class="font-bold text-slate-800 mb-1">💡 الشرح والتوضيح: ${escapeHtml(q.exp_ar)}</div>
+                        <div class="en-text text-xs text-slate-600">${escapeHtml(q.exp_en)}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (shownCount === 0) {
+                container.innerHTML = `<div class="p-6 text-center bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 font-bold">🎉 لا توجد أسئلة خاطئة لعرضها! يمكنك الضغط على "عرض جميع الـ 50 سؤال" لمراجعة الاختبار بالكامل.</div>`;
+            }
+        }
+
+        // Attach event listeners
+        document.getElementById('confirmNextBtn').addEventListener('click', handleConfirmAndAdvance);
+
+        document.getElementById('filterWrongOnlyBtn').addEventListener('click', () => {
+            currentReviewFilter = 'wrong';
+            document.getElementById('filterWrongOnlyBtn').className = 'bg-red-600 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition';
+            document.getElementById('filterAllQuestionsBtn').className = 'bg-slate-200 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl transition';
+            renderDetailedReview();
+        });
+
+        document.getElementById('filterAllQuestionsBtn').addEventListener('click', () => {
+            currentReviewFilter = 'all';
+            document.getElementById('filterAllQuestionsBtn').className = 'bg-blue-900 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition';
+            document.getElementById('filterWrongOnlyBtn').className = 'bg-slate-200 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl transition';
+            renderDetailedReview();
+        });
+
+        document.getElementById('copyWrongNumsBtn').addEventListener('click', () => {
+            const text = document.getElementById('WrongNumbersTextLine').textContent;
+            const btn = document.getElementById('copyWrongNumsBtn');
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.textContent = '✅ تم نسخ أرقام الأسئلة الخاطئة!';
+                setTimeout(() => { btn.textContent = '📋 نسخ أرقام الأسئلة الخاطئة'; }, 2000);
+            } catch (e) {}
+        });
+
+        // Modal handlers for resetting exam
+        const resetModal = document.getElementById('resetConfirmModal');
+        document.getElementById('resetExamProgressBtn').addEventListener('click', () => {
+            resetModal.classList.remove('hidden');
+        });
+        document.getElementById('retakeFullExamBtn').addEventListener('click', () => {
+            resetModal.classList.remove('hidden');
+        });
+        document.getElementById('cancelResetBtn').addEventListener('click', () => {
+            resetModal.classList.add('hidden');
+        });
+        document.getElementById('confirmResetBtn').addEventListener('click', () => {
+            resetModal.classList.add('hidden');
+            resetExamState();
+        });
+
+        window.addEventListener('load', () => {
+            loadSavedState();
+            renderApp();
+        });
+    </script>
+</body>
+</html>
