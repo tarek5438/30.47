@@ -104,14 +104,14 @@
           <h1 id="portalMainTitle" class="text-2xl sm:text-4xl font-black tracking-tight leading-snug cursor-pointer hover:text-amber-300 transition" title="العودة للشاشة الرئيسية">
             دروس المجموعة
           </h1>
-          <p class="text-indigo-100/90 text-sm sm:text-base mt-1.5 max-w-xl">
-            اختر الفولدر أو اضغط على الدرس المطلوب لفتحه مباشرة والبدء في المذاكرة والتدريب.
+          <p id="portalHeroDesc" class="text-indigo-100/90 text-sm sm:text-base mt-1.5 max-w-xl">
+            اضغط على الدرس المطلوب لفتحه مباشرة والبدء في المذاكرة والتدريب.
           </p>
         </div>
 
         <!-- Stats & Quick Actions -->
         <div class="flex flex-wrap items-center gap-3 self-start md:self-center">
-          <div class="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl text-center border border-white/15 min-w-[90px]">
+          <div id="folderStatCard" class="hidden bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl text-center border border-white/15 min-w-[90px]">
             <span id="folderCountStat" class="block text-xl sm:text-2xl font-black text-amber-300">0</span>
             <span class="text-xs text-indigo-100 font-semibold">فولدر</span>
           </div>
@@ -130,10 +130,10 @@
 
       <!-- Search, Folder Filter & Sort Bar -->
       <div class="mt-7 grid grid-cols-1 sm:grid-cols-12 gap-3">
-        <div class="relative sm:col-span-6">
+        <div id="searchColWrapper" class="relative sm:col-span-9">
           <input id="searchInput" type="text" placeholder="🔍 ابحث عن اسم الدرس أو الموضوع..." class="w-full bg-white/95 text-slate-900 placeholder-slate-400 font-semibold rounded-2xl px-4 py-3.5 text-sm sm:text-base shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400">
         </div>
-        <div class="sm:col-span-3">
+        <div id="folderFilterWrapper" class="sm:col-span-3 hidden">
           <select id="folderFilterSelect" aria-label="تصفية حسب الفولدر" class="w-full bg-white/95 text-slate-800 font-bold rounded-2xl px-4 py-3.5 text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-amber-400">
             <option value="ALL">📂 كل الفولدرات والدروس</option>
           </select>
@@ -154,7 +154,7 @@
   <main class="max-w-6xl w-full mx-auto px-4 py-7 flex-1">
 
     <!-- Breadcrumb & View Navigation Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 surface-card bg-white p-3.5 sm:px-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div id="breadcrumbBar" class="hidden flex-wrap items-center justify-between gap-3 mb-6 surface-card bg-white p-3.5 sm:px-5 rounded-2xl border border-slate-200 shadow-sm">
       <div class="flex items-center flex-wrap gap-2 text-sm font-extrabold" id="breadcrumbContainer">
         <button type="button" id="bcRootBtn" class="text-indigo-700 hover:underline flex items-center gap-1.5">
           <span>🏠</span>
@@ -411,11 +411,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-extrabold mb-1">اسم حساب GitHub (User):</label>
-            <input id="settingsGhUser" type="text" dir="ltr" placeholder="tarek5438" class="w-full border-2 border-slate-200 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900">
+            <input id="settingsGhUser" type="text" dir="ltr" placeholder="يكتشف تلقائياً من الرابط" class="w-full border-2 border-slate-200 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900">
           </div>
           <div>
             <label class="block text-xs font-extrabold mb-1">اسم المستودع (Repo):</label>
-            <input id="settingsGhRepo" type="text" dir="ltr" placeholder="bac-2" class="w-full border-2 border-slate-200 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900">
+            <input id="settingsGhRepo" type="text" dir="ltr" placeholder="يكتشف تلقائياً لكل Repo" class="w-full border-2 border-slate-200 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900">
           </div>
         </div>
 
@@ -459,11 +459,10 @@
 }
   </script>
 
-  <script>
+    <script>
     const DEFAULT_GITHUB_USER = "";
     const DEFAULT_GITHUB_REPO = "";
-    const LOCAL_CONFIG_KEY = "group_lessons_portal_config_v3";
-    const LOCAL_TEACHER_SETTINGS_KEY = "group_lessons_teacher_settings_v3";
+    const GLOBAL_TEACHER_AUTH_KEY = "group_lessons_teacher_auth_universal_v4";
 
     let lessonsList = [];
     let portalConfig = null;
@@ -487,6 +486,61 @@
       purple: { bg: "bg-purple-50", border: "border-purple-200 hover:border-purple-400", badge: "bg-purple-600 text-white", text: "text-purple-900" }
     };
 
+    // اكتشاف تلقائي لاسم المستخدم واسم الـ Repo والمسار الفرعي من الرابط الحالي
+    // يعمل تلقائياً في أي Repo تنسخ إليه ملف index.html دون تداخل بين المستودعات
+    function detectRepoFromUrl() {
+      const host = (window.location.hostname || "").toLowerCase();
+      const parts = (window.location.pathname || "").split("/").filter(Boolean);
+
+      let urlUser = "";
+      let urlRepo = "";
+      let folder = "";
+
+      if (host.endsWith(".github.io")) {
+        urlUser = host.replace(".github.io", "");
+        if (parts.length > 0 && !/\.html?$/i.test(parts[0])) {
+          urlRepo = parts[0];
+        }
+        if (parts.length > 1) {
+          const sub = parts.slice(1).filter(p => !/\.html?$/i.test(p));
+          if (sub.length > 0) folder = sub.join("/");
+        }
+      } else {
+        // في حالة التشغيل على دومين مخصص أو محلياً، نحاول استنتاج اسم المجلد من الرابط
+        const dirParts = parts.filter(p => !/\.html?$/i.test(p));
+        if (dirParts.length > 0) {
+          urlRepo = dirParts[0];
+          if (dirParts.length > 1) {
+            folder = dirParts.slice(1).join("/");
+          }
+        }
+      }
+
+      // الأولوية دائماً للـ Repo المكتشف من الرابط الحالي حتى يعمل نفس الملف في كل الـ Repos
+      const user = (urlUser || teacherLocalSettings.ghUser || DEFAULT_GITHUB_USER).trim();
+      const repo = (urlRepo || teacherLocalSettings.ghRepo || DEFAULT_GITHUB_REPO).trim();
+
+      return { user, repo, folder };
+    }
+
+    // مفتاح تخزين محلي مستقل لكل Repo على حدة لمنع انتقال الفولدرات بين المستودعات المختلفة
+    function getRepoScopeId() {
+      const { user, repo, folder } = detectRepoFromUrl();
+      if (user || repo) {
+        return `${user || "local"}__${repo || "root"}__${folder || "main"}`.replace(/[^a-zA-Z0-9_\-]/g, "_");
+      }
+      const cleanPath = (window.location.pathname || "/").replace(/\/index\.html?$/i, "").replace(/[^a-zA-Z0-9_\-]/g, "_");
+      return `path_${cleanPath || "root"}`;
+    }
+
+    function getLocalConfigKey() {
+      return `portal_repo_cfg_v4_${getRepoScopeId()}`;
+    }
+
+    function getLocalRepoSettingsKey() {
+      return `portal_repo_settings_v4_${getRepoScopeId()}`;
+    }
+
     function showToast(msg, icon = "✅") {
       const toast = document.getElementById("toastNotification");
       document.getElementById("toastIcon").textContent = icon;
@@ -499,7 +553,6 @@
       }, 3200);
     }
 
-    // دالة موحدة لفتح أي فولدر بشكل مباشر ومضمون
     function openFolderView(folderId) {
       activeFolderId = String(folderId);
       const filterSelect = document.getElementById("folderFilterSelect");
@@ -511,7 +564,6 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // دالة موحدة للرجوع السريع إلى الشاشة الرئيسية (كل الفولدرات)
     function goBackToRoot() {
       activeFolderId = "ROOT";
       const filterSelect = document.getElementById("folderFilterSelect");
@@ -521,25 +573,62 @@
       renderPortal();
     }
 
+    function createCleanDefaultConfig() {
+      return {
+        portalTitle: "دروس المجموعة",
+        teacherPin: "1234",
+        folders: [],
+        fileMeta: {}
+      };
+    }
+
     function loadInitialConfig() {
+      portalConfig = createCleanDefaultConfig();
+
       try {
         const embeddedEl = document.getElementById("embeddedLessonsConfig");
-        portalConfig = JSON.parse(embeddedEl.textContent);
+        if (embeddedEl && embeddedEl.textContent.trim()) {
+          const parsedEmbedded = JSON.parse(embeddedEl.textContent);
+          if (parsedEmbedded && typeof parsedEmbedded === "object") {
+            portalConfig = {
+              portalTitle: parsedEmbedded.portalTitle || "دروس المجموعة",
+              teacherPin: parsedEmbedded.teacherPin || "1234",
+              folders: Array.isArray(parsedEmbedded.folders) ? parsedEmbedded.folders : [],
+              fileMeta: (parsedEmbedded.fileMeta && typeof parsedEmbedded.fileMeta === "object") ? parsedEmbedded.fileMeta : {}
+            };
+          }
+        }
       } catch (e) {
-        portalConfig = { portalTitle: "دروس المجموعة", teacherPin: "1234", folders: [], fileMeta: {} };
+        portalConfig = createCleanDefaultConfig();
       }
 
       try {
-        const saved = localStorage.getItem(LOCAL_CONFIG_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
+        // قراءة الإعدادات الخاصة بهذا الـ Repo فقط
+        const savedRepoCfg = localStorage.getItem(getLocalConfigKey());
+        if (savedRepoCfg) {
+          const parsed = JSON.parse(savedRepoCfg);
           if (parsed && typeof parsed === "object" && Array.isArray(parsed.folders)) {
             portalConfig = parsed;
           }
         }
-        const savedSettings = localStorage.getItem(LOCAL_TEACHER_SETTINGS_KEY);
-        if (savedSettings) {
-          teacherLocalSettings = { ...teacherLocalSettings, ...JSON.parse(savedSettings) };
+
+        // قراءة رمز GitHub العام للمعلم (حتى لا يضطر لإدخاله في كل Repo)
+        const savedGlobalAuth = localStorage.getItem(GLOBAL_TEACHER_AUTH_KEY);
+        if (savedGlobalAuth) {
+          const parsedAuth = JSON.parse(savedGlobalAuth);
+          if (parsedAuth && typeof parsedAuth === "object") {
+            teacherLocalSettings.ghUser = parsedAuth.ghUser || teacherLocalSettings.ghUser;
+            teacherLocalSettings.ghToken = parsedAuth.ghToken || teacherLocalSettings.ghToken;
+          }
+        }
+
+        // قراءة إعدادات الـ Repo الحالي إن وجدت
+        const savedRepoSettings = localStorage.getItem(getLocalRepoSettingsKey());
+        if (savedRepoSettings) {
+          const parsedRepoSet = JSON.parse(savedRepoSettings);
+          if (parsedRepoSet && typeof parsedRepoSet === "object") {
+            teacherLocalSettings = { ...teacherLocalSettings, ...parsedRepoSet };
+          }
         }
       } catch (e) {}
 
@@ -548,7 +637,7 @@
 
     function saveConfigLocally(markUnsaved = true) {
       try {
-        localStorage.setItem(LOCAL_CONFIG_KEY, JSON.stringify(portalConfig));
+        localStorage.setItem(getLocalConfigKey(), JSON.stringify(portalConfig));
         const embeddedEl = document.getElementById("embeddedLessonsConfig");
         if (embeddedEl) {
           embeddedEl.textContent = JSON.stringify(portalConfig, null, 2);
@@ -591,7 +680,6 @@
       saveConfigLocally(true);
     }
 
-    // حساب رقم الترتيب التالي (اللي عليه الدور) داخل الفولدر المحدد أو الشاشة الرئيسية
     function getNextOrderInFolder(targetFolderId, excludeFilename = null) {
       const target = targetFolderId ? String(targetFolderId) : "";
       const excluded = excludeFilename ? decodeURIComponent(excludeFilename) : null;
@@ -614,34 +702,59 @@
       return Math.max(maxOrder, countInFolder) + 1;
     }
 
-    function detectRepoFromUrl() {
-      let user = (teacherLocalSettings.ghUser || DEFAULT_GITHUB_USER).trim();
-      let repo = (teacherLocalSettings.ghRepo || DEFAULT_GITHUB_REPO).trim();
-      let folder = "";
+    function updateFolderUIVisibility() {
+      const folders = (portalConfig && Array.isArray(portalConfig.folders)) ? portalConfig.folders : [];
+      const hasFolders = folders.length > 0;
 
-      const host = window.location.hostname || "";
-      const parts = (window.location.pathname || "").split("/").filter(Boolean);
+      const folderStatCard = document.getElementById("folderStatCard");
+      const folderFilterWrapper = document.getElementById("folderFilterWrapper");
+      const searchColWrapper = document.getElementById("searchColWrapper");
+      const breadcrumbBar = document.getElementById("breadcrumbBar");
+      const heroDesc = document.getElementById("portalHeroDesc");
 
-      if (host.endsWith(".github.io")) {
-        if (!user) user = host.replace(".github.io", "");
-        if (!repo && parts.length > 0) repo = parts[0];
-        if (parts.length > 1) {
-          const sub = parts.slice(1).filter(p => !/\.html?$/i.test(p));
-          if (sub.length > 0) folder = sub.join("/");
+      if (hasFolders) {
+        if (folderStatCard) folderStatCard.classList.remove("hidden");
+        if (folderFilterWrapper) folderFilterWrapper.classList.remove("hidden");
+        if (searchColWrapper) {
+          searchColWrapper.classList.remove("sm:col-span-9");
+          searchColWrapper.classList.add("sm:col-span-6");
+        }
+        if (breadcrumbBar) {
+          breadcrumbBar.classList.remove("hidden");
+          breadcrumbBar.classList.add("flex");
+        }
+        if (heroDesc) {
+          heroDesc.textContent = "اختر الفولدر أو اضغط على الدرس المطلوب لفتحه مباشرة والبدء في المذاكرة والتدريب.";
+        }
+      } else {
+        // لا توجد فولدرات في البداية: إخفاء كل عناصر الفولدرات لعرض الدروس مباشرة بشكل نظيف
+        activeFolderId = "ROOT";
+        if (folderStatCard) folderStatCard.classList.add("hidden");
+        if (folderFilterWrapper) folderFilterWrapper.classList.add("hidden");
+        if (searchColWrapper) {
+          searchColWrapper.classList.remove("sm:col-span-6");
+          searchColWrapper.classList.add("sm:col-span-9");
+        }
+        if (breadcrumbBar) {
+          breadcrumbBar.classList.add("hidden");
+          breadcrumbBar.classList.remove("flex");
+        }
+        if (heroDesc) {
+          heroDesc.textContent = "اضغط على الدرس المطلوب لفتحه مباشرة والبدء في المذاكرة والتدريب.";
         }
       }
-      return { user, repo, folder };
     }
 
     function populateFolderDropdowns() {
       const filterSelect = document.getElementById("folderFilterSelect");
       const editFolderSelect = document.getElementById("editLessonFolderSelect");
+      const folders = (portalConfig && Array.isArray(portalConfig.folders)) ? portalConfig.folders : [];
 
       const previousFilterVal = filterSelect.value;
       filterSelect.innerHTML = `<option value="ALL">🏠 الشاشة الرئيسية (الفولدرات والدروس العامة)</option><option value="ALL_FLAT">📚 عرض جميع الدروس معاً</option>`;
       editFolderSelect.innerHTML = `<option value="">🏠 بدون فولدر (في الشاشة الرئيسية)</option>`;
 
-      (portalConfig.folders || []).forEach(folder => {
+      folders.forEach(folder => {
         const fId = String(folder.id);
         const opt1 = document.createElement("option");
         opt1.value = fId;
@@ -654,7 +767,6 @@
         editFolderSelect.appendChild(opt2);
       });
 
-      // الحفاظ على الفولدر المفتوح حالياً في القائمة المنسدلة
       if (activeFolderId !== "ROOT" && Array.from(filterSelect.options).some(o => o.value === String(activeFolderId))) {
         filterSelect.value = String(activeFolderId);
       } else if (Array.from(filterSelect.options).some(o => o.value === previousFilterVal)) {
@@ -761,6 +873,7 @@
     }
 
     function renderPortal() {
+      updateFolderUIVisibility();
       populateFolderDropdowns();
       renderBreadcrumbs();
 
@@ -772,6 +885,7 @@
       const folderCountStat = document.getElementById("folderCountStat");
       const lessonsSectionTitle = document.getElementById("lessonsSectionTitle");
       const lessonsSubCount = document.getElementById("lessonsSubCount");
+      const emptyBackRootBtn = document.getElementById("emptyBackRootBtn");
 
       const searchVal = document.getElementById("searchInput").value.trim().toLowerCase();
       const filterFolderVal = document.getElementById("folderFilterSelect").value;
@@ -788,8 +902,8 @@
 
       lessonCountEl.textContent = visibleLessons.length;
 
-      // 1. Render Folders Grid (Show only when at ROOT, no search query, and filter is ALL)
-      if (activeFolderId === "ROOT" && !searchVal && filterFolderVal === "ALL" && folders.length > 0) {
+      // 1. Render Folders Grid (Show only when folders exist, at ROOT, no search query, and filter is ALL)
+      if (folders.length > 0 && activeFolderId === "ROOT" && !searchVal && filterFolderVal === "ALL") {
         foldersSection.classList.remove("hidden");
         foldersGrid.innerHTML = "";
 
@@ -838,7 +952,6 @@
           foldersGrid.appendChild(fCard);
         });
 
-        // Attach Teacher Folder Action Handlers
         foldersGrid.querySelectorAll("[data-move-folder-up]").forEach(btn => {
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -879,7 +992,7 @@
         const matchesSearch = displayName.includes(searchVal) || decodeURIComponent(item.name).toLowerCase().includes(searchVal);
         if (!matchesSearch) return false;
 
-        if (searchVal) return true;
+        if (searchVal || folders.length === 0) return true;
 
         if (effectiveFolderFilter === "ALL") {
           return !assignedFolder;
@@ -891,17 +1004,17 @@
       });
 
       const lessonsSection = document.getElementById("lessonsSection");
-      if (activeFolderId !== "ROOT") {
+      if (activeFolderId !== "ROOT" && folders.length > 0) {
         const fObj = folders.find(f => String(f.id) === String(activeFolderId));
         lessonsSectionTitle.innerHTML = `<span>📚</span><span>الدروس المتاحة داخل ${fObj ? fObj.name : "الفولدر"}</span>`;
       } else if (searchVal) {
         lessonsSectionTitle.innerHTML = `<span>🔍</span><span>نتائج البحث (${filteredLessons.length})</span>`;
-      } else if (effectiveFolderFilter === "ALL_FLAT") {
+      } else if (effectiveFolderFilter === "ALL_FLAT" && folders.length > 0) {
         lessonsSectionTitle.innerHTML = `<span>📚</span><span>جميع الدروس في كل الفولدرات</span>`;
       } else if (folders.length > 0) {
         lessonsSectionTitle.innerHTML = `<span>📄</span><span>ملفات عامة (خارج الفولدرات)</span>`;
       } else {
-        lessonsSectionTitle.innerHTML = `<span>📚</span><span>الدروس والملفات المتاحة</span>`;
+        lessonsSectionTitle.innerHTML = `<span>📚</span><span>الدروس والاختبارات المتاحة</span>`;
       }
       lessonsSubCount.textContent = `${filteredLessons.length} ملف`;
 
@@ -941,6 +1054,13 @@
         }
         lessonsSection.classList.remove("hidden");
         emptyState.classList.remove("hidden");
+        if (emptyBackRootBtn) {
+          if (activeFolderId !== "ROOT" || searchVal) {
+            emptyBackRootBtn.classList.remove("hidden");
+          } else {
+            emptyBackRootBtn.classList.add("hidden");
+          }
+        }
         return;
       }
       lessonsSection.classList.remove("hidden");
@@ -960,7 +1080,7 @@
           folderOptionsHtml += `<option value="${f.id}" ${String(meta.folderId || "") === String(f.id) ? "selected" : ""}>${f.icon || "📁"} ${f.name}</option>`;
         });
 
-        const hasHeaderTags = (parentFolder && activeFolderId === "ROOT") || meta.hidden || typeof meta.order === "number";
+        const hasHeaderTags = (parentFolder && activeFolderId === "ROOT") || meta.hidden || (typeof meta.order === "number" && isTeacherMode);
 
         card.innerHTML = `
           <div>
@@ -1002,12 +1122,14 @@
                     ✏️ الاسم والترتيب
                   </button>
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-600 mb-1">نقل مباشر إلى فولدر:</label>
-                  <select data-move-lesson="${decodedName}" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-800">
-                    ${folderOptionsHtml}
-                  </select>
-                </div>
+                ${folders.length > 0 ? `
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">نقل مباشر إلى فولدر:</label>
+                    <select data-move-lesson="${decodedName}" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-800">
+                      ${folderOptionsHtml}
+                    </select>
+                  </div>
+                ` : ""}
               </div>
             ` : ""}
           </div>
@@ -1021,7 +1143,6 @@
         lessonsGrid.appendChild(card);
       });
 
-      // Attach Teacher Mode listeners on Lesson Cards
       if (isTeacherMode) {
         lessonsGrid.querySelectorAll("[data-move-lesson-up]").forEach(btn => {
           btn.addEventListener("click", () => {
@@ -1061,7 +1182,7 @@
       if (enabled) {
         toolbar.classList.remove("hidden");
         lockLabel.textContent = "وضع المعلم نشط (خروج)";
-        showToast("تم تفعيل وضع تحكم المعلم! يمكنك الآن تسمية وترتيب الملفات والفولدرات.", "👨‍🏫");
+        showToast("تم تفعيل وضع تحكم المعلم! يمكنك الآن تسمية وترتيب الملفات أو إنشاء فولدرات.", "👨‍🏫");
       } else {
         toolbar.classList.add("hidden");
         lockLabel.textContent = "إدارة المعلم";
@@ -1261,7 +1382,7 @@
       const { user, repo, folder } = detectRepoFromUrl();
       const token = (teacherLocalSettings.ghToken || "").trim();
 
-      if (!token) {
+      if (!token || !user || !repo) {
         const blob = new Blob([JSON.stringify(portalConfig, null, 2)], { type: "application/json;charset=utf-8" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -1280,7 +1401,7 @@
       const apiUrl = `https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${pathInRepo}`;
 
       try {
-        showToast("جاري الحفظ المباشر على GitHub...", "⏳");
+        showToast(`جاري الحفظ المباشر على ${user}/${repo}...`, "⏳");
         let sha = null;
         const getRes = await fetch(apiUrl, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
@@ -1309,7 +1430,7 @@
 
         if (putRes.ok) {
           document.getElementById("unsavedIndicator").classList.add("hidden");
-          showToast("تم حفظ التعديلات والترتيب ونشرها على GitHub لجميع الطلاب بنجاح!", "☁️");
+          showToast(`تم حفظ التعديلات ونشرها على ${user}/${repo} لجميع الطلاب بنجاح!`, "☁️");
         } else {
           showToast("تعذر النشر المباشر على GitHub — تأكد من صلاحية الـ Token واسم المستودع في الإعدادات.", "⚠️");
         }
@@ -1324,18 +1445,41 @@
 
       const { user, repo, folder } = detectRepoFromUrl();
       if (user && repo) {
-        repoInfoText.textContent = `${user}/${repo}`;
+        repoInfoText.textContent = folder ? `${user}/${repo}/${folder}` : `${user}/${repo}`;
+      } else {
+        repoInfoText.textContent = "وضع الاكتشاف التلقائي";
       }
 
-      if (user && repo) {
+      // 1. محاولة قراءة lessons-config.json مباشرة من نفس مجلد index.html (بدون استهلاك حد GitHub API)
+      let loadedRemoteConfig = false;
+      try {
+        const directCfgRes = await fetch(`./lessons-config.json?t=${Date.now()}`, { cache: "no-store" });
+        if (directCfgRes.ok) {
+          const remoteCfg = await directCfgRes.json();
+          if (remoteCfg && typeof remoteCfg === "object" && Array.isArray(remoteCfg.folders)) {
+            portalConfig = remoteCfg;
+            loadedRemoteConfig = true;
+            saveConfigLocally(false);
+            applyPortalHeaderTitle();
+          }
+        }
+      } catch (e) {}
+
+      // 2. إذا لم يُقرأ عبر الرابط المباشر وكان لدينا user & repo، نجرب عبر GitHub API
+      if (!loadedRemoteConfig && user && repo) {
         try {
           const cfgPath = folder ? `${folder}/lessons-config.json` : "lessons-config.json";
           const cfgApiUrl = `https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${cfgPath}?t=${Date.now()}`;
-          const cfgRes = await fetch(cfgApiUrl, { headers: { Accept: "application/vnd.github.raw+json" } });
+          const headers = { Accept: "application/vnd.github.raw+json" };
+          if (teacherLocalSettings.ghToken) {
+            headers.Authorization = `Bearer ${teacherLocalSettings.ghToken}`;
+          }
+          const cfgRes = await fetch(cfgApiUrl, { headers });
           if (cfgRes.ok) {
             const remoteCfg = await cfgRes.json();
-            if (remoteCfg && Array.isArray(remoteCfg.folders)) {
+            if (remoteCfg && typeof remoteCfg === "object" && Array.isArray(remoteCfg.folders)) {
               portalConfig = remoteCfg;
+              loadedRemoteConfig = true;
               saveConfigLocally(false);
               applyPortalHeaderTitle();
             }
@@ -1343,11 +1487,17 @@
         } catch (e) {}
       }
 
+      // 3. قراءة ملفات HTML الموجودة في نفس الـ Repo تلقائياً
       if (user && repo) {
         loadingBox.classList.remove("hidden");
-        const apiUrl = `https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${folder ? encodeURIComponent(folder) : ""}`;
+        const encodedFolder = folder ? folder.split("/").map(encodeURIComponent).join("/") : "";
+        const apiUrl = `https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${encodedFolder}`;
         try {
-          const res = await fetch(apiUrl);
+          const headers = { Accept: "application/vnd.github+json" };
+          if (teacherLocalSettings.ghToken) {
+            headers.Authorization = `Bearer ${teacherLocalSettings.ghToken}`;
+          }
+          const res = await fetch(apiUrl, { headers });
           if (res.ok) {
             const files = await res.json();
             if (Array.isArray(files)) {
@@ -1368,6 +1518,7 @@
         return;
       }
 
+      // 4. في حالة التشغيل على خادم محلي يدعم فهرسة المجلد
       try {
         const dirUrl = window.location.href.replace(/index\.html.*$/i, "");
         if (dirUrl.startsWith("http") && !window.location.hostname.includes("googleusercontent")) {
@@ -1410,17 +1561,15 @@
       });
       document.getElementById("sortSelect").addEventListener("change", renderPortal);
       document.getElementById("refreshLessonsBtn").addEventListener("click", () => {
-        showToast("جاري تحديث قائمة الملفات من المستودع...", "🔄");
+        showToast("جاري تحديث قائمة الملفات من المستودع الحالي...", "🔄");
         loadSiblingHtmlFiles();
       });
 
-      // أزرار الرجوع السريع للشاشة الرئيسية
       document.getElementById("emptyBackRootBtn").addEventListener("click", goBackToRoot);
       document.getElementById("bannerBackToRootBtn").addEventListener("click", goBackToRoot);
       document.getElementById("topQuickBackBtn").addEventListener("click", goBackToRoot);
       document.getElementById("portalMainTitle").addEventListener("click", goBackToRoot);
 
-      // الرجوع للشاشة الرئيسية عند الضغط على زر Escape في لوحة المفاتيح
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && activeFolderId !== "ROOT") {
           const anyModalOpen = ["loginModal", "folderModal", "lessonEditModal", "settingsModal"].some(
@@ -1491,8 +1640,8 @@
       document.getElementById("openSettingsModalBtn").addEventListener("click", () => {
         const detected = detectRepoFromUrl();
         document.getElementById("settingsPortalTitle").value = portalConfig.portalTitle || "دروس المجموعة";
-        document.getElementById("settingsGhUser").value = teacherLocalSettings.ghUser || detected.user || DEFAULT_GITHUB_USER;
-        document.getElementById("settingsGhRepo").value = teacherLocalSettings.ghRepo || detected.repo || DEFAULT_GITHUB_REPO;
+        document.getElementById("settingsGhUser").value = detected.user || teacherLocalSettings.ghUser || DEFAULT_GITHUB_USER;
+        document.getElementById("settingsGhRepo").value = detected.repo || teacherLocalSettings.ghRepo || DEFAULT_GITHUB_REPO;
         document.getElementById("settingsGhToken").value = teacherLocalSettings.ghToken || "";
         document.getElementById("settingsNewPin").value = portalConfig.teacherPin || "1234";
         settingsModal.classList.remove("hidden");
@@ -1514,7 +1663,12 @@
         teacherLocalSettings.ghToken = document.getElementById("settingsGhToken").value.trim();
 
         try {
-          localStorage.setItem(LOCAL_TEACHER_SETTINGS_KEY, JSON.stringify(teacherLocalSettings));
+          // حفظ الـ Token واسم الحساب بشكل عام للمعلم، وحفظ اسم الـ Repo للمستودع الحالي فقط
+          localStorage.setItem(GLOBAL_TEACHER_AUTH_KEY, JSON.stringify({
+            ghUser: teacherLocalSettings.ghUser,
+            ghToken: teacherLocalSettings.ghToken
+          }));
+          localStorage.setItem(getLocalRepoSettingsKey(), JSON.stringify(teacherLocalSettings));
         } catch (e) {}
 
         saveConfigLocally(true);
@@ -1526,9 +1680,14 @@
 
       document.getElementById("resetDefaultConfigBtn").addEventListener("click", () => {
         try {
-          localStorage.removeItem(LOCAL_CONFIG_KEY);
+          localStorage.removeItem(getLocalConfigKey());
+          localStorage.removeItem("group_lessons_portal_config_v3");
         } catch (e) {}
-        location.reload();
+        portalConfig = createCleanDefaultConfig();
+        saveConfigLocally(true);
+        closeSettings();
+        renderPortal();
+        showToast("تم مسح الفولدرات وإعادة الضبط للوضع الافتراضي بنجاح", "🔄");
       });
 
       loadSiblingHtmlFiles();
