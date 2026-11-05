@@ -1,0 +1,28 @@
+{
+  "configVersion": 5,
+  "portalTitle": "دروس المجموعة",
+  "teacherPin": "2468",
+  "folders": [
+    {
+      "id": "folder_1793918993240",
+      "name": "Quizes",
+      "icon": "📁",
+      "color": "indigo",
+      "desc": ""
+    }
+  ],
+  "fileMeta": {
+    "lesson1.html": {
+      "folderId": "folder_1793918993240",
+      "order": 1
+    },
+    "lesson2.html": {
+      "folderId": "folder_1793918993240",
+      "order": 2
+    },
+    "lesson3.html": {
+      "folderId": "folder_1793918993240",
+      "order": 3
+    }
+  }
+}
